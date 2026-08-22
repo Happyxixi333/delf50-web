@@ -1,5 +1,5 @@
 'use strict';
-const V15_VERSION='1.5';
+const V15_VERSION='1.5.2';
 Object.assign(QUOTAS.light,{grammar:8,application:2,listening:2,reading:2,writing:1,speaking:2,vocab:25,review:10});
 Object.assign(QUOTAS.standard,{grammar:10,application:3,listening:3,reading:3,writing:1,speaking:3,vocab:35,review:15});
 Object.assign(QUOTAS.high,{grammar:12,application:4,listening:4,reading:4,writing:2,speaking:4,vocab:45,review:20});
