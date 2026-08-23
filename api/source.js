@@ -8,6 +8,8 @@ const V17_COMMIT='3fa5017b5e8e1acdc053259ebc04c1b7dd5e6c30';
 const V171_COMMIT='25ee5748b7b2ea95b063b43778ad9a7ecea26607';
 const V172_COMMIT='3486c9cae6de93c3c3787caddfe4f88844564bb7';
 const V173_COMMIT='895d2813d9b5067e2100eb00bae6a02466d79535';
+const V174_NAV_COMMIT='03acc2dd00a44f38c97b7380b068ff00d9194f96';
+const V174_GUIDE_COMMIT='3cb40191ea1bb3f8cd718cb0c7450a62e11f84d2';
 async function loadAt(commit,file){
   const url=`https://raw.githubusercontent.com/Happyxixi333/delf50-web/${commit}/${file}`;
   const r=await fetch(url,{headers:{'User-Agent':'DELF50-Vercel'}});
@@ -28,15 +30,19 @@ module.exports=async function handler(req,res){
       const manual=await loadAt(V171_COMMIT,'v171-user-manual.js');
       const architecture=await loadAt(V172_COMMIT,'v172-compat-architecture.js');
       const archive=await loadAt(V173_COMMIT,'v173-learning-archive.js');
-      text = "/* DELF50_BUNDLE App=1.7.3 Schema=2 Content=1.7.0 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive;
+      const grammarGuides=await loadAt(V174_GUIDE_COMMIT,'content/grammar-guides-v174.js');
+      const navigation=await loadAt(V174_NAV_COMMIT,'v174-navigation.js');
+      text = "/* DELF50_BUNDLE App=1.7.4 Schema=2 Content=1.7.1 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=separate-cursor grammar-guides=18 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation;
     }
     new Function(text);
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
     res.setHeader('Cache-Control','public, max-age=300, s-maxage=3600');
-    res.setHeader('X-DELF50-App','1.7.3');
+    res.setHeader('X-DELF50-App','1.7.4');
     res.setHeader('X-DELF50-Schema','2');
-    res.setHeader('X-DELF50-Content','1.7.0');
+    res.setHeader('X-DELF50-Content','1.7.1');
     res.setHeader('X-DELF50-Archive','read-only');
+    res.setHeader('X-DELF50-Navigation','separate-cursor');
+    res.setHeader('X-DELF50-Grammar-Guides','18');
     res.status(200).send(text);
   }catch(e){
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
