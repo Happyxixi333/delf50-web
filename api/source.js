@@ -6,6 +6,7 @@ const FILES=[
 const BASE_COMMIT='285776d5cc34a0f0f7bb7617425b9b878e2c1889';
 const V17_COMMIT='3fa5017b5e8e1acdc053259ebc04c1b7dd5e6c30';
 const V171_COMMIT='25ee5748b7b2ea95b063b43778ad9a7ecea26607';
+const V172_COMMIT='3486c9cae6de93c3c3787caddfe4f88844564bb7';
 async function loadAt(commit,file){
   const url=`https://raw.githubusercontent.com/Happyxixi333/delf50-web/${commit}/${file}`;
   const r=await fetch(url,{headers:{'User-Agent':'DELF50-Vercel'}});
@@ -24,12 +25,15 @@ module.exports=async function handler(req,res){
       const depth=await loadAt(BASE_COMMIT,'v16-depth.js');
       const pedagogy=await loadAt(V17_COMMIT,'v17-pedagogy.js');
       const manual=await loadAt(V171_COMMIT,'v171-user-manual.js');
-      text = "/* DELF50_COMBINED V1.7.1 | curriculum=50 provenance=100% autosave=verified */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual;
+      const architecture=await loadAt(V172_COMMIT,'v172-compat-architecture.js');
+      text = "/* DELF50_BUNDLE App=1.7.2 Schema=2 Content=1.7.0 | curriculum=50 provenance=100% autosave=verified compatibility=locked */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture;
     }
     new Function(text);
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
     res.setHeader('Cache-Control','public, max-age=300, s-maxage=3600');
-    res.setHeader('X-DELF50-Content','1.7.1');
+    res.setHeader('X-DELF50-App','1.7.2');
+    res.setHeader('X-DELF50-Schema','2');
+    res.setHeader('X-DELF50-Content','1.7.0');
     res.status(200).send(text);
   }catch(e){
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
