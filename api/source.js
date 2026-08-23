@@ -20,7 +20,7 @@ module.exports=async function handler(req,res){
     if(file==='v15-patch.js'){
       text=text.replace("const V15_VERSION='1.5.2';","const V15_VERSION='1.5.3';");
       const depth=await loadFile('v16-depth.js');
-      text += '\n;\n' + depth;
+      text = "/* DELF50_COMBINED V1.6.0 | reading=24 listening=24 writing=24 speaking=24 application=24 */\n" + text + '\n;\n' + depth;
     }
     new Function(text);
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
