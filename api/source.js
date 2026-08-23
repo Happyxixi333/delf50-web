@@ -1,9 +1,9 @@
 const FILES=[
   'base/data-a.js','base/data-b1.js','base/data-b2.js',
   'base/app-a1.js','base/app-a2.js','base/app-a3.js','base/app-b.js',
-  'v13-p1.js','v13-p2.js','v13-p3.js','v13-p4.js','v13-p5.js','v15-patch.js'
+  'v13-p1.js','v13-p2.js','v13-p3.js','v13-p4.js','v13-p5.js','v15-patch.js','v16-depth.js'
 ];
-const COMMIT='0988ca037fae684f983177a18426dd8857c84a2f';
+const COMMIT='285776d5cc34a0f0f7bb7617425b9b878e2c1889';
 module.exports=async function handler(req,res){
   const i=Number(req.query.i);
   if(!Number.isInteger(i)||i<0||i>=FILES.length){res.status(400).send("throw new Error('invalid source index')");return;}
