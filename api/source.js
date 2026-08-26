@@ -20,7 +20,7 @@ const V180_FINAL_COMMIT='d06c81152e32edc1f39bc05b02bdb8c70e147d99';
 const V181_COMMIT='8174cbfd9687b2705e9ac385cd842843177ad6f6';
 const V182_COMMIT='b9ac0a41d9fbcd05dcff840d819da98a4c244e7d';
 const V182_UI_COMMIT='808cfa9a290eccd4ff254b5651a4694da6fc666a';
-const V183_UI_COMMIT='82ba2534838fb84a80ccd0d28ec430eb7b323f69';
+const V183_UI_COMMIT='5534e6df88b79a371565c607d447b4b03b6d28d4';
 async function loadAt(commit,file){
   const url=`https://raw.githubusercontent.com/Happyxixi333/delf50-web/${commit}/${file}`;
   const r=await fetch(url,{headers:{'User-Agent':'DELF50-Vercel'}});
@@ -68,8 +68,8 @@ module.exports=async function handler(req,res){
       ]);
       seedInfo=seeds181;
       const seedBootstrap=`globalThis.__DELF50_SOURCE_SEEDS_V181=${JSON.stringify(seeds181.seeds)};`;
-      const uiVersionBootstrap="if(typeof S!=='undefined'){S.version='1.8.2';if(S.meta172){S.meta172.appVersion='1.8.2';S.meta172.contentVersion='1.8.1';S.meta172.studentUi='student-ui-clean-v2';}}if(typeof render==='function'){render();}";
-      text = "/* DELF50_BUNDLE App=1.8.2 Schema=2 Content=1.8.1 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=demand-aware grammar-guides=18 day-routing=source-driven-v1 lifecycle=completion-lock-v1 grammar-ui=demand-allocation-v1 student-ui=clean-v2 day2-reading-repair=precise-v1 day3-correction=source-driven-upgrade no-repeat-audit=full-question-audit-v1 volume=8h-50d-core-v1 source-seeds=180 source-families=18 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177 + '\n;\n' + v180 + '\n;\n' + v178 + '\n;\n' + v180final + '\n;\n' + seedBootstrap + '\n;\n' + v181 + '\n;\n' + v182 + '\n;\n' + studentUi + '\n;\n' + studentUiV2 + '\n;\n' + uiVersionBootstrap;
+      const uiVersionBootstrap="if(typeof S!=='undefined'){S.version='1.8.2';if(S.meta172){S.meta172.appVersion='1.8.2';S.meta172.contentVersion='1.8.1';S.meta172.studentUi='student-ui-clean-v3';}}if(typeof render==='function'){render();}";
+      text = "/* DELF50_BUNDLE App=1.8.2 Schema=2 Content=1.8.1 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=demand-aware grammar-guides=18 day-routing=source-driven-v1 lifecycle=completion-lock-v1 grammar-ui=demand-allocation-v1 student-ui=clean-v3 day2-reading-repair=precise-v1 day3-correction=source-driven-upgrade no-repeat-audit=full-question-audit-v1 volume=8h-50d-core-v1 source-seeds=180 source-families=18 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177 + '\n;\n' + v180 + '\n;\n' + v178 + '\n;\n' + v180final + '\n;\n' + seedBootstrap + '\n;\n' + v181 + '\n;\n' + v182 + '\n;\n' + studentUi + '\n;\n' + studentUiV2 + '\n;\n' + uiVersionBootstrap;
     }
     new Function(text);
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
@@ -84,7 +84,7 @@ module.exports=async function handler(req,res){
     res.setHeader('X-DELF50-Lifecycle','completion-lock-v1');
     res.setHeader('X-DELF50-Grammar-UI','demand-allocation-v1');
     res.setHeader('X-DELF50-Demand-Allocation','demand-allocation-v1');
-    res.setHeader('X-DELF50-Student-UI','clean-v2');
+    res.setHeader('X-DELF50-Student-UI','clean-v3');
     res.setHeader('X-DELF50-Day2-Reading-Repair','precise-v1');
     res.setHeader('X-DELF50-Day3-Correction','source-driven-upgrade');
     res.setHeader('X-DELF50-No-Repeat-Audit','full-question-audit-v1');
