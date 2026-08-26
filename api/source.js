@@ -21,6 +21,7 @@ const V181_COMMIT='8174cbfd9687b2705e9ac385cd842843177ad6f6';
 const V182_COMMIT='b9ac0a41d9fbcd05dcff840d819da98a4c244e7d';
 const V182_UI_COMMIT='808cfa9a290eccd4ff254b5651a4694da6fc666a';
 const V183_UI_COMMIT='5534e6df88b79a371565c607d447b4b03b6d28d4';
+const V184_ROUTE_COMMIT='6e7337de973ab640862c5fe759ce78de17c5a032';
 async function loadAt(commit,file){
   const url=`https://raw.githubusercontent.com/Happyxixi333/delf50-web/${commit}/${file}`;
   const r=await fetch(url,{headers:{'User-Agent':'DELF50-Vercel'}});
@@ -63,18 +64,18 @@ module.exports=async function handler(req,res){
     let seedInfo=null;
     if(file==='v15-patch.js'){
       text=text.replace("const V15_VERSION='1.5.2';","const V15_VERSION='1.5.3';");
-      const [depth,pedagogy,manual,architecture,archive,grammarGuides,navigation,dayRouting,v176,repair,v177,v180,v178,v180final,v181,v182,studentUi,studentUiV2,seeds181]=await Promise.all([
-        loadAt(BASE_COMMIT,'v16-depth.js'),loadAt(V17_COMMIT,'v17-pedagogy.js'),loadAt(V171_COMMIT,'v171-user-manual.js'),loadAt(V172_COMMIT,'v172-compat-architecture.js'),loadAt(V173_COMMIT,'v173-learning-archive.js'),loadAt(V174_GUIDE_COMMIT,'content/grammar-guides-v174.js'),loadAt(V174_NAV_COMMIT,'v174-navigation.js'),loadAt(V175_ROUTING_COMMIT,'v175-day-content-routing.js'),loadAt(V176_COMMIT,'v176-day2-lifecycle-ui.js'),loadAt(V176_REPAIR_COMMIT,'v176-day2-reading-repair.js'),loadAt(V177_COMMIT,'v177-global-unique-routing.js'),loadAt(V180_COMMIT,'v180-authoritative-volume.js'),loadAt(V178_COMMIT,'v178-full-question-audit.js'),loadAt(V180_FINAL_COMMIT,'v180-finalize.js'),loadAt(V181_COMMIT,'v181-source-driven-content.js'),loadAt(V182_COMMIT,'v182-demand-allocation.js'),loadAt(V182_UI_COMMIT,'v182-student-ui-polish.js'),loadAt(V183_UI_COMMIT,'v183-student-ui-cleanup.js'),loadSeeds181()
+      const [depth,pedagogy,manual,architecture,archive,grammarGuides,navigation,dayRouting,v176,repair,v177,v180,v178,v180final,v181,v182,studentUi,studentUiV2,v184,seeds181]=await Promise.all([
+        loadAt(BASE_COMMIT,'v16-depth.js'),loadAt(V17_COMMIT,'v17-pedagogy.js'),loadAt(V171_COMMIT,'v171-user-manual.js'),loadAt(V172_COMMIT,'v172-compat-architecture.js'),loadAt(V173_COMMIT,'v173-learning-archive.js'),loadAt(V174_GUIDE_COMMIT,'content/grammar-guides-v174.js'),loadAt(V174_NAV_COMMIT,'v174-navigation.js'),loadAt(V175_ROUTING_COMMIT,'v175-day-content-routing.js'),loadAt(V176_COMMIT,'v176-day2-lifecycle-ui.js'),loadAt(V176_REPAIR_COMMIT,'v176-day2-reading-repair.js'),loadAt(V177_COMMIT,'v177-global-unique-routing.js'),loadAt(V180_COMMIT,'v180-authoritative-volume.js'),loadAt(V178_COMMIT,'v178-full-question-audit.js'),loadAt(V180_FINAL_COMMIT,'v180-finalize.js'),loadAt(V181_COMMIT,'v181-source-driven-content.js'),loadAt(V182_COMMIT,'v182-demand-allocation.js'),loadAt(V182_UI_COMMIT,'v182-student-ui-polish.js'),loadAt(V183_UI_COMMIT,'v183-student-ui-cleanup.js'),loadAt(V184_ROUTE_COMMIT,'v184-replacement-completion-lock.js'),loadSeeds181()
       ]);
       seedInfo=seeds181;
       const seedBootstrap=`globalThis.__DELF50_SOURCE_SEEDS_V181=${JSON.stringify(seeds181.seeds)};`;
-      const uiVersionBootstrap="if(typeof S!=='undefined'){S.version='1.8.2';if(S.meta172){S.meta172.appVersion='1.8.2';S.meta172.contentVersion='1.8.1';S.meta172.studentUi='student-ui-clean-v3';}}if(typeof render==='function'){render();}";
-      text = "/* DELF50_BUNDLE App=1.8.2 Schema=2 Content=1.8.1 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=demand-aware grammar-guides=18 day-routing=source-driven-v1 lifecycle=completion-lock-v1 grammar-ui=demand-allocation-v1 student-ui=clean-v3 day2-reading-repair=precise-v1 day3-correction=source-driven-upgrade no-repeat-audit=full-question-audit-v1 volume=8h-50d-core-v1 source-seeds=180 source-families=18 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177 + '\n;\n' + v180 + '\n;\n' + v178 + '\n;\n' + v180final + '\n;\n' + seedBootstrap + '\n;\n' + v181 + '\n;\n' + v182 + '\n;\n' + studentUi + '\n;\n' + studentUiV2 + '\n;\n' + uiVersionBootstrap;
+      const uiVersionBootstrap="if(typeof S!=='undefined'){S.version='1.8.4';if(S.meta172){S.meta172.appVersion='1.8.4';S.meta172.contentVersion='1.8.1';S.meta172.studentUi='student-ui-clean-v3';S.meta172.replacementRouting='replacement-completion-lock-v1';}}if(typeof render==='function'){render();}";
+      text = "/* DELF50_BUNDLE App=1.8.4 Schema=2 Content=1.8.1 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=demand-aware grammar-guides=18 day-routing=source-driven-v1 lifecycle=completion-lock-v1 grammar-ui=demand-allocation-v1 student-ui=clean-v3 day2-reading-repair=precise-v1 day3-correction=source-driven-upgrade replacement-routing=replacement-completion-lock-v1 no-repeat-audit=full-question-audit-v1 volume=8h-50d-core-v1 source-seeds=180 source-families=18 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177 + '\n;\n' + v180 + '\n;\n' + v178 + '\n;\n' + v180final + '\n;\n' + seedBootstrap + '\n;\n' + v181 + '\n;\n' + v182 + '\n;\n' + studentUi + '\n;\n' + studentUiV2 + '\n;\n' + v184 + '\n;\n' + uiVersionBootstrap;
     }
     new Function(text);
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
     res.setHeader('Cache-Control','public, max-age=300, s-maxage=3600');
-    res.setHeader('X-DELF50-App','1.8.2');
+    res.setHeader('X-DELF50-App','1.8.4');
     res.setHeader('X-DELF50-Schema','2');
     res.setHeader('X-DELF50-Content','1.8.1');
     res.setHeader('X-DELF50-Archive','read-only');
@@ -87,6 +88,7 @@ module.exports=async function handler(req,res){
     res.setHeader('X-DELF50-Student-UI','clean-v3');
     res.setHeader('X-DELF50-Day2-Reading-Repair','precise-v1');
     res.setHeader('X-DELF50-Day3-Correction','source-driven-upgrade');
+    res.setHeader('X-DELF50-Replacement-Routing','replacement-completion-lock-v1');
     res.setHeader('X-DELF50-No-Repeat-Audit','full-question-audit-v1');
     res.setHeader('X-DELF50-Volume','8h-50d-core-v1');
     if(seedInfo){res.setHeader('X-DELF50-Source-Seeds',String(seedInfo.seeds.length));res.setHeader('X-DELF50-Source-Families',String(seedInfo.families));}
