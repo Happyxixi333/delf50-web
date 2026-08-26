@@ -16,6 +16,7 @@ const V176_REPAIR_COMMIT='e738409c7337314ed8443eea598a3f58f3ec226e';
 const V177_COMMIT='25b16845975c6d4fd7b14d5496ef590755c2c957';
 const V178_COMMIT='386456579ad345dec9c3eb503ff47edc80add3ad';
 const V180_COMMIT='2c3cedcf1146317b02b0f92a0b0f0dd8360b8b03';
+const V180_FINAL_COMMIT='d06c81152e32edc1f39bc05b02bdb8c70e147d99';
 async function loadAt(commit,file){
   const url=`https://raw.githubusercontent.com/Happyxixi333/delf50-web/${commit}/${file}`;
   const r=await fetch(url,{headers:{'User-Agent':'DELF50-Vercel'}});
@@ -44,7 +45,8 @@ module.exports=async function handler(req,res){
       const v177=await loadAt(V177_COMMIT,'v177-global-unique-routing.js');
       const v180=await loadAt(V180_COMMIT,'v180-authoritative-volume.js');
       const v178=await loadAt(V178_COMMIT,'v178-full-question-audit.js');
-      text = "/* DELF50_BUNDLE App=1.8.0 Schema=2 Content=1.8.0 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=separate-cursor grammar-guides=18 day-routing=global-unique-v1 lifecycle=completion-lock-v1 grammar-ui=lean-v1 day2-reading-repair=precise-v1 day3-correction=day3-correction-v1 no-repeat-audit=full-question-audit-v1 volume=8h-50d-core-v1 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177 + '\n;\n' + v180 + '\n;\n' + v178;
+      const v180final=await loadAt(V180_FINAL_COMMIT,'v180-finalize.js');
+      text = "/* DELF50_BUNDLE App=1.8.0 Schema=2 Content=1.8.0 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=separate-cursor grammar-guides=18 day-routing=global-unique-v1 lifecycle=completion-lock-v1 grammar-ui=lean-v1 day2-reading-repair=precise-v1 day3-correction=day3-correction-v1 no-repeat-audit=full-question-audit-v1 volume=8h-50d-core-v1 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177 + '\n;\n' + v180 + '\n;\n' + v178 + '\n;\n' + v180final;
     }
     new Function(text);
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
