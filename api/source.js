@@ -14,6 +14,7 @@ const V175_ROUTING_COMMIT='692c398bb6243730b651b1bc420390ff03c719f6';
 const V176_COMMIT='4111eb1858a5c968664b790d4b817208141b234a';
 const V176_REPAIR_COMMIT='e738409c7337314ed8443eea598a3f58f3ec226e';
 const V177_COMMIT='25b16845975c6d4fd7b14d5496ef590755c2c957';
+const V178_COMMIT='386456579ad345dec9c3eb503ff47edc80add3ad';
 async function loadAt(commit,file){
   const url=`https://raw.githubusercontent.com/Happyxixi333/delf50-web/${commit}/${file}`;
   const r=await fetch(url,{headers:{'User-Agent':'DELF50-Vercel'}});
@@ -40,14 +41,15 @@ module.exports=async function handler(req,res){
       const v176=await loadAt(V176_COMMIT,'v176-day2-lifecycle-ui.js');
       const repair=await loadAt(V176_REPAIR_COMMIT,'v176-day2-reading-repair.js');
       const v177=await loadAt(V177_COMMIT,'v177-global-unique-routing.js');
-      text = "/* DELF50_BUNDLE App=1.7.7 Schema=2 Content=1.7.3 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=separate-cursor grammar-guides=18 day-routing=global-unique-v1 lifecycle=completion-lock-v1 grammar-ui=lean-v1 day2-reading-repair=precise-v1 day3-correction=day3-correction-v1 no-repeat-audit=runtime */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177;
+      const v178=await loadAt(V178_COMMIT,'v178-full-question-audit.js');
+      text = "/* DELF50_BUNDLE App=1.7.8 Schema=2 Content=1.7.4 | curriculum=50 provenance=100% autosave=verified compatibility=locked archive=read-only pagination=separate-cursor grammar-guides=18 day-routing=global-unique-v1 lifecycle=completion-lock-v1 grammar-ui=lean-v1 day2-reading-repair=precise-v1 day3-correction=day3-correction-v1 no-repeat-audit=full-question-audit-v1 */\n" + text + '\n;\n' + depth + '\n;\n' + pedagogy + '\n;\n' + manual + '\n;\n' + architecture + '\n;\n' + archive + '\n;\n' + grammarGuides + '\n;\n' + navigation + '\n;\n' + dayRouting + '\n;\n' + v176 + '\n;\n' + repair + '\n;\n' + v177 + '\n;\n' + v178;
     }
     new Function(text);
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
     res.setHeader('Cache-Control','public, max-age=300, s-maxage=3600');
-    res.setHeader('X-DELF50-App','1.7.7');
+    res.setHeader('X-DELF50-App','1.7.8');
     res.setHeader('X-DELF50-Schema','2');
-    res.setHeader('X-DELF50-Content','1.7.3');
+    res.setHeader('X-DELF50-Content','1.7.4');
     res.setHeader('X-DELF50-Archive','read-only');
     res.setHeader('X-DELF50-Navigation','separate-cursor');
     res.setHeader('X-DELF50-Grammar-Guides','18');
@@ -56,7 +58,7 @@ module.exports=async function handler(req,res){
     res.setHeader('X-DELF50-Grammar-UI','lean-v1');
     res.setHeader('X-DELF50-Day2-Reading-Repair','precise-v1');
     res.setHeader('X-DELF50-Day3-Correction','day3-correction-v1');
-    res.setHeader('X-DELF50-No-Repeat-Audit','runtime');
+    res.setHeader('X-DELF50-No-Repeat-Audit','full-question-audit-v1');
     res.status(200).send(text);
   }catch(e){
     res.setHeader('Content-Type','application/javascript; charset=utf-8');
