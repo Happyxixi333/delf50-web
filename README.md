@@ -4,64 +4,87 @@ A1+ → DELF B1 的 50 天网页备考训练系统。
 
 ## 当前生产版本
 
-- App：`1.8.0`
+- App：`1.8.1`
 - State Schema：`2`
-- Teaching Content：`1.8.0`
+- Teaching Content：`1.8.1`
 - 生产地址：`https://delf50-mvp.vercel.app`
-- 路由：`global-unique-v1`
+- 路由：`source-driven-v1`
 - 全题干审计：`full-question-audit-v1`
 - 高强度容量档：`8h-50d-core-v1`
+- 权威来源族：`18`
+- Source seeds：`180`
 
-V1.8.0 在 V1.7.7 的全程唯一分配基础上，加入语法题量扩容、读听小题题干级去重和 8 小时 × 50 天容量检查。已完成、已作答、已有草稿或录音的历史学习证据继续锁定，不因扩容或重分配被删除、倒扣或重写。
+V1.8.1 沿用 V1.8.0 的 Schema 2、完成锁定、全程唯一分配和 8 小时 × 50 天容量机制，并为 Day 3–50 接入 source-driven 题库层。18 个权威来源族共 180 个 source seeds 通过服务端固定 commit SHA 注入运行 bundle，再由 `v181-source-driven-content.js` 生成 reading / listening / writing / speaking / application 的新训练材料。
+
+本轮是 additive update，不重置、不重算已有学习记录。已经完成、已作答、已有草稿/正文或口语记录的历史槽位继续使用既有 Content ID 和历史证据；只有尚未开始的槽位允许接入 V1.8.1 新题库。
+
+## V1.8.1 source-driven 题库
+
+Day 3–50 按 8 小时最高强度可分配 864 个 source-driven 槽位：
+
+| 模块 | 每日最高量 | Day 3–50 槽位 |
+| --- | ---: | ---: |
+| 阅读 | 4 篇 | 192 |
+| 听力 | 4 组 | 192 |
+| 写作 | 2 项 | 96 |
+| 口语 | 4 轮 | 192 |
+| 应用 | 4 项 | 192 |
+| 合计 | 18 | 864 |
+
+V1.8.1 使用按 `Day + slot` 固定生成的 Content ID（`r181-* / l181-* / w181-* / s181-* / a181-*`）。来源 seed、来源族、权威机构、来源 URL、许可、核验时间、能力功能和 semantic fingerprint 都写入 provenance，便于之后追踪与审计。
+
+180 个 seed 来自 18 个权威来源族，每个来源族固定 10 个 seed。`api/source.js` 在服务端加载这些 JSON 时强制检查：来源族数量必须为 18、每族必须为 10、总 seed 必须为 180、family ID / seed ID / 核心事实不得重复；任何一项不满足时接口直接失败，不向浏览器发送不完整题库。
+
+## 历史学习记录保护
+
+V1.8.1 保持 Schema 2 的 additive migration 原则。
+
+- `S.assignments172` 继续保存每个 Day 已经确定的 reading / listening / writing / speaking / application Content ID。
+- 已完成数量继续从当天 `S.daily` 判断；已完成槽位不会重新分配。
+- 阅读/听力只要已有逐题 answer key，即视为已有学习证据并锁定。
+- 写作/应用已有提交记录或草稿时锁定。
+- 口语已有对应 Content ID 的记录时锁定。
+- 提高学习强度只增加尚未开始的新槽位，不删除已经完成的额外训练。
+- `localStorage`、IndexedDB 录音、历史答案、完成数量、草稿和正文不因 V1.8.1 升级被清空或覆盖。
+
+因此，从 V1.8.0 升级到 V1.8.1 后，之前 Day 1、Day 2 或任何已经开始的 Day 仍保留原学习证据；新的 source-driven 材料主要接管 Day 3–50 中尚未开始的任务。
+
+## 去重与容量审计
+
+V1.8 系列继续执行 `v178-full-question-audit.js` 和高强度容量审计。V1.8.1 source-driven 生成层在本地审计中验证了 864 个槽位可分配，并对以下维度进行重复检查：
+
+- Content ID；
+- 阅读全文和听力脚本；
+- 写作、口语、应用任务文本；
+- 阅读与听力每一道小题题干；
+- semantic fingerprint。
+
+V1.8.1 接线前的审计结果为上述重复项均为 0。既有历史任务和新生成任务分开处理：历史证据优先锁定，新题库只填充未开始槽位。
 
 ## Day 3 重复材料修复
 
-Day 3 已经完成但与 Day 1 重复的第 3 篇阅读不删除旧答案和旧完成记录；系统为该槽位建立独立纠偏替代材料，并把补做结果作为新增学习证据保存。尚未开始的 Day 3 重复听力直接换成新的唯一材料；若已经产生真实作答证据，则旧证据同样保留并进入纠偏补做逻辑。
-
-Day 3–50 的 reading / listening / writing / speaking / application 使用按 `Day + slot` 固定的唯一 Content ID。未开始槽位可以安全更新；已经开始或完成的槽位锁定不动。
+早期版本中 Day 3 与 Day 1 出现重复的历史材料仍按照“保留证据、追加纠偏”的原则处理。已经完成的重复阅读不删除旧答案和完成记录；尚未开始的槽位可以被 V1.8.1 source-driven 内容安全替换。若槽位已经产生真实作答、草稿或录音，则继续锁定旧 Content ID，不强行换题。
 
 ## 8 小时 × 50 天容量
 
 8 小时档的 50 天核心需求为：
 
-| 模块 | 每日最高量 | 50 天最低容量要求 | V1.8 容量 |
+| 模块 | 每日最高量 | 50 天最低容量要求 | 当前容量 |
 | --- | ---: | ---: | ---: |
 | 语法客观题 | 12 | 600 | ≥650；保守测试 817 |
-| 阅读 | 4 篇 | 200 | 200 |
-| 听力 | 4 组 | 200 | 200 |
-| 写作 | 2 项 | 100 | 100 |
-| 口语 | 4 轮 | 200 | 200 |
-| 应用 | 4 项 | 200 | 200 |
+| 阅读 | 4 篇 | 200 | V1.8 基础容量 + V1.8.1 source-driven Day 3–50 |
+| 听力 | 4 组 | 200 | V1.8 基础容量 + V1.8.1 source-driven Day 3–50 |
+| 写作 | 2 项 | 100 | V1.8 基础容量 + V1.8.1 source-driven Day 3–50 |
+| 口语 | 4 轮 | 200 | V1.8 基础容量 + V1.8.1 source-driven Day 3–50 |
+| 应用 | 4 项 | 200 | V1.8 基础容量 + V1.8.1 source-driven Day 3–50 |
 
-每篇阅读和每组听力按 3 道客观题计算，对应约 600 道阅读小题和 600 道听力小题。核心题目/任务量约 2300 个独立训练单元，不含主动产出、词块与错题复习。
-
-语法扩容文件：`v180-authoritative-volume.js`。新增题只追加在既有题目之后，旧题顺序和旧 Trace ID 不改。新题使用 `GQ180-*` Trace ID。扩容模块要求语法总量至少 650 且精确题干重复数、Trace ID 重复数均为 0 才标记容量审计通过。
-
-## 全题干去重
-
-文件：`v178-full-question-audit.js`。
-
-最终审计在所有扩容之后执行，检查：
-
-- reading / listening / writing / speaking / application 的 Content ID；
-- 阅读全文、听力脚本、写作题目、口语题目、应用任务的精确重复；
-- 每一道阅读和听力小题题干；
-- 全部语法客观题题干；
-- 已完成历史重复与未来未完成重复分开统计。
-
-未开始的 V1.7.7 生成型阅读/听力会使用带 dossier、地点和上下文的唯一题干；已经开始或完成的材料不会被改题。
+语法扩容仍由 `v180-authoritative-volume.js` 提供；新增题只追加在旧题之后，旧题顺序和旧 Trace ID 不改。
 
 ## 权威来源与版权边界
 
-课程与题型校准使用：
+课程与题型校准使用 France Éducation international DELF B1 官方考试结构、样题和备考说明，以及 Council of Europe CEFR descriptors。官方样题仅用于题型、时长、评分和难度校准，不批量复制官方真题文本。
 
-- France Éducation international DELF B1 官方考试结构、样题和备考说明；
-- Council of Europe CEFR descriptors；
-- France Éducation international 官方样题仅用于题型、时长、评分和难度校准，不复制官方真题文本；
-- Service-Public.gouv.fr / DILA `Fiches pratiques et ressources – Particuliers` 作为法国公共生活主题的权威开放信息来源池；
-- Licence Ouverte / Etalab 2.0 作为开放公共信息再利用的许可依据。
-
-官方 DELF 样题明确受复印/重复使用限制，因此内部大题库采用 DELF50 原创题，不把官方真题批量搬运进系统。开放政府信息用于提供真实主题、事实类型和场景种子；原创题保留来源和能力对齐元数据。
+V1.8.1 的 source seeds 使用法国公共服务、就业、教育、医疗、交通、能源、统计、数据保护、网络安全和文化等权威公共信息来源。系统使用这些来源提供事实类型、现实场景和词汇方向，再生成 DELF50 原创训练文本；运行时 provenance 保留来源 URL、authority、licence 与 verifiedAt。
 
 ## 50 天路线
 
@@ -76,19 +99,20 @@ Day 3–50 的 reading / listening / writing / speaking / application 使用按 
 - 6.5 小时：语法 10 + 主动产出 8；应用 3；听力 3；阅读 3；写作 1；口语 3。
 - 8 小时：语法 12 + 主动产出 10；应用 4；听力 4；阅读 4；写作 2；口语 4。
 
-提高强度只增加当前阶段尚未开始的训练槽位，不覆盖已经完成的证据。
-
 ## 数据保护
 
 学习状态保存于浏览器 `localStorage`；口语录音保存在 IndexedDB `delf50_audio_v1`。Schema 2 坚持 additive migration。历史答案、完成数量、写作/应用正文、草稿、错题和录音引用默认只保留、不重算。JSON 备份不包含录音文件。
 
-## 主要文件
+## V1.8.1 主要文件
 
-- `v177-global-unique-routing.js`
-- `v178-full-question-audit.js`
+- `content/seeds-v181/01-sp-housing.json` … `18-culture-access.json`
+- `v181-source-driven-content.js`
 - `v180-authoritative-volume.js`
+- `v178-full-question-audit.js`
 - `v180-finalize.js`
+- `v177-global-unique-routing.js`
 - `v176-day2-reading-repair.js`
 - `v172-compat-architecture.js`
 - `v173-learning-archive.js`
 - `api/source.js`
+- `index.html`（loader cache key：`v181`）
