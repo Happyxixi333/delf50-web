@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "alias": [
+    "delf50-v1-8-1.vercel.app"
+  ]
+}
