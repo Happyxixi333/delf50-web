@@ -1,11 +1,12 @@
 'use strict';
 (function(){
-const APP='1.8.2',CONTENT='1.8.1',UI_ROUTE='student-ui-clean-v2';
+const APP='1.8.2',CONTENT='1.8.1',UI_ROUTE='student-ui-clean-v3';
 function cleanToday183(html){
   try{
     const t=document.createElement('template');
     t.innerHTML=String(html||'');
-    t.content.querySelectorAll('.demandtoday182,.dailyoverviewUI').forEach(el=>el.remove());
+    // 保留唯一的“今日计划 / 今日训练”总览，只移除按需分配说明卡。
+    t.content.querySelectorAll('.demandtoday182').forEach(el=>el.remove());
     t.content.querySelectorAll('.card').forEach(card=>{
       const bolds=[...card.querySelectorAll('b')].map(x=>(x.textContent||'').trim());
       if(bolds.includes('今日学习流程')||bolds.includes('当前学习时长对应题量'))card.remove();
