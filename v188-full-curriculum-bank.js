@@ -1,11 +1,11 @@
 'use strict';
 (function(){
-const APP='1.8.8',CONTENT='1.8.3',ROUTE='curriculum-full-bank-v1',UI_ROUTE='student-question-clean-v5';
+const APP='1.8.9',CONTENT='1.8.4',ROUTE='curriculum-full-bank-v2',UI_ROUTE='student-question-clean-v5';
 const TYPES=['reading','listening','writing','speaking','application'];
 const MAX={reading:4,listening:4,writing:2,speaking:4,application:4};
 const PREFIX={reading:'r181',listening:'l181',writing:'w181',speaking:'s181',application:'a181'};
 const CURRICULUM_SOURCE=globalThis.__DELF50_CURRICULUM_50;
-if(!Array.isArray(CURRICULUM_SOURCE)||CURRICULUM_SOURCE.length!==50)throw new Error('V1.8.8 canonical curriculum unavailable');
+if(!Array.isArray(CURRICULUM_SOURCE)||CURRICULUM_SOURCE.length!==50)throw new Error('V1.8.9 canonical curriculum unavailable');
 const PROFILES=Object.fromEntries(CURRICULUM_SOURCE.filter(x=>Number(x.day)>=4&&Number(x.day)<=50).map(x=>[Number(x.day),x]));
 const OFFICIAL_BASIS=['FEI-B1','FEI-SAMPLES','FEI-TRAIN','CEFR-DESC','CEFR-CLASS'];
 const ID_RE=/^([rlwsa]181)-d(\d{2})-s(\d{2})$/i;
@@ -220,8 +220,8 @@ const report=rewrite();
 report.duplicates=duplicateAudit();
 report.curriculumParity=curriculumParity();
 const after=historySnapshot();
-if(before!==after)throw new Error('V1.8.8 history invariant failed');
-if(report.issues.length||report.duplicates.length||report.curriculumParity.mismatches.length)throw new Error('V1.8.8 quality audit failed: '+JSON.stringify({issues:report.issues.slice(0,5),duplicates:report.duplicates.slice(0,5),curriculum:report.curriculumParity.mismatches.slice(0,5)}));
+if(before!==after)throw new Error('V1.8.9 history invariant failed');
+if(report.issues.length||report.duplicates.length||report.curriculumParity.mismatches.length)throw new Error('V1.8.9 quality audit failed: '+JSON.stringify({issues:report.issues.slice(0,5),duplicates:report.duplicates.slice(0,5),curriculum:report.curriculumParity.mismatches.slice(0,5)}));
 if(typeof readingView==='function'){const base=readingView;readingView=function(x){return stripDevHtml(base(x))}}
 if(typeof listeningView==='function'){const base=listeningView;listeningView=function(x){return stripDevHtml(base(x))}}
 if(typeof writingView==='function'){const base=writingView;writingView=function(){return stripDevHtml(base())}}
