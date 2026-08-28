@@ -121,7 +121,8 @@ function protectedItem(type,day,slot,x){if(slot<done(day,type))return true;if(!x
 function category(p){const z=(p.topic+' '+p.title+' '+p.grammar).toLowerCase();if(/transport|voyage|incident|annonce|trajet|quotidien/.test(z))return'transport';if(/week-end|passé|récit|expérience|enfance/.test(z))return /enfance|imparfait/.test(z)?'past':'travel';if(/travail|études|école|candid|formation|courriel/.test(z))return'work';if(/santé|habitude/.test(z))return'health';if(/logement|réclamation/.test(z))return'housing';if(/ville|alimentation|service public/.test(z))return'city';if(/culture|personnes/.test(z))return'culture';if(/technologie|numérique/.test(z))return'technology';if(/environnement/.test(z))return'environment';if(/société|opinion|argument|débat|point de vue/.test(z))return'society';return'service'}
 function scene(p,slot){return SCENES[category(p)][slot%4]}
 function norm(s){return String(s||'').replace(/\s+/g,' ').trim()}
-function cap(s){s=norm(s);return s?s.charAt(0).toUpperCase()+s.slice(1):s}\nfunction studentTitle(p){const t=String(p&&p.topic||'entraînement').replace(/&/g,'et').trim();return t.toLowerCase()==='mixte'?'Entraînement mixte':cap(t)}
+function cap(s){s=norm(s);return s?s.charAt(0).toUpperCase()+s.slice(1):s}
+function studentTitle(p){const t=String(p&&p.topic||'entraînement').replace(/&/g,'et').trim();return t.toLowerCase()==='mixte'?'Entraînement mixte':cap(t)}
 function rotate(arr,k){const n=((k%arr.length)+arr.length)%arr.length;return arr.slice(n).concat(arr.slice(0,n))}
 function qprov(x,n){const p=x&&x.provenance?JSON.parse(JSON.stringify(x.provenance)):{};p.traceId=String(p.traceId||x.id||'').replace(/-Q\d+$/,'')+`-Q${n}`;p.revision=3;p.pedagogyRoute=ROUTE;return p}
 function mc(x,n,stem,correct,wrong1,wrong2,why,k){const opts=rotate([correct,wrong1,wrong2],k+n);return[stem,opts,opts.indexOf(correct),why,qprov(x,n)]}
