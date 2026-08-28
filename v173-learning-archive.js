@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-const ARCHIVE_VERSION_173='1.7.3';
+const ARCHIVE_VERSION_173='1.7.3-history-evidence';
 let archiveDay173=1;
 const audioUrls173=new Map();
 
@@ -25,7 +25,17 @@ function wordCount173(t){return String(t||'').trim().split(/\s+/).filter(Boolean
 
 function bank173(type){if(type==='reading')return typeof V13_READINGS!=='undefined'?V13_READINGS:READINGS;if(type==='listening')return typeof V13_LISTENINGS!=='undefined'?V13_LISTENINGS:LISTENINGS;if(type==='writing')return typeof V13_WRITINGS!=='undefined'?V13_WRITINGS:WRITINGS;if(type==='speaking')return typeof V13_SPEAKING!=='undefined'?V13_SPEAKING:SPEAKING;if(type==='application')return typeof V13_APPLICATION!=='undefined'?V13_APPLICATION:APPLICATION;return[]}
 function findContent173(type,id){return bank173(type).find((x,i)=>String(x.id||(x.provenance&&x.provenance.traceId)||`${type}-legacy-${i}`)===String(id))||null}
-function assignedCompletedIds173(type,day){const d=dayData173(day),count=Number(d[type]||0),a=S.assignments172&&S.assignments172[String(day)]&&S.assignments172[String(day)][type]||[];return a.slice(0,count)}
+function assignedCompletedIds173(type,day){
+ const d=dayData173(day),count=Number(d[type]||0),a=S.assignments172&&S.assignments172[String(day)]&&S.assignments172[String(day)][type]||[];
+ const source=type==='reading'?S.reading:S.listening,answers=source&&source.answers||{},strong=new Set(contentCompleted173(type,day).map(x=>String(x.id))),prefix=String(day)+':';
+ for(const k of Object.keys(answers)){if(!k.startsWith(prefix))continue;const rest=k.slice(prefix.length),cut=rest.lastIndexOf(':');if(cut>0)strong.add(rest.slice(0,cut))}
+ const slotStrong=new Map(),day2=String(day).padStart(2,'0');
+ for(const id of strong){const m=String(id).match(new RegExp('-d'+day2+'-s([0-9]{2})$','i'));if(m)slotStrong.set(Number(m[1])-1,id)}
+ const out=[],seen=new Set(),add=id=>{id=String(id||'');if(id&&!seen.has(id)){seen.add(id);out.push(id)}};
+ for(let s=0;s<count;s++)add(slotStrong.get(s)||a[s]);
+ for(const id of strong)add(id);
+ return out
+}
 function answerKey173(type,day,item,qi){if(!item)return null;const box=type==='reading'?S.reading:S.listening;const key=`${day}:${item.id}:${qi}`;return box&&box.answers&&box.answers[key]!==undefined?box.answers[key]:null}
 function answerSummary173(type,day,item){if(!item||!Array.isArray(item.qs))return{done:0,correct:0,total:0};let done=0,correct=0;item.qs.forEach((q,qi)=>{const a=answerKey173(type,day,item,qi);if(a!==null){done++;if(a===q[2])correct++}});return{done,correct,total:item.qs.length}}
 function inputDetail173(type,day,id){const item=findContent173(type,id);if(!item)return `<div class="archiveitem173"><b>${aesc173(id)}</b><div class="muted">该 Content ID 当前题库中未找到；历史 ID 仍保留。</div></div>`;const s=answerSummary173(type,day,item),label=type==='reading'?'阅读':'听力';return `<details class="archiveitem173"><summary><span><b>${aesc173(item.title)}</b><small>${aesc173(id)} · ${s.done?s.correct+'/'+s.done+' 正确':'已完成，旧记录无逐题明细'}</small></span><span class="pill">${label}</span></summary><div class="archivebody173">${item.qs.map((q,qi)=>{const a=answerKey173(type,day,item,qi),has=a!==null,ok=has&&a===q[2];return `<div class="archiverow173"><div><b>${qi+1}. ${aesc173(q[0])}</b><div class="muted">${has?`你的答案：${aesc173(q[1][a])} · 正确答案：${aesc173(q[1][q[2]])}`:'旧记录中没有保存这道题的逐题选择'}</div></div>${has?`<span class="pill ${ok?'':'warn'}">${ok?'正确':'需复盘'}</span>`:''}</div>`}).join('')}</div></details>`}
