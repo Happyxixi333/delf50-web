@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-const APP='1.8.16',CONTENT='1.8.8',ROUTE='source-calibrated-diverse-input-v2';
+const RELEASE=globalThis.__DELF50_RELEASE||{app:'1.8.17',content:'1.8.8',inputQuality:'source-calibrated-diverse-input-v2'};\nconst APP=RELEASE.app,CONTENT=RELEASE.content,ROUTE=RELEASE.inputQuality;
 const CURR=Array.isArray(globalThis.__DELF50_CURRICULUM_50)?globalThis.__DELF50_CURRICULUM_50:[];
 const SOURCE_SEEDS_RAW=Array.isArray(globalThis.__DELF50_SOURCE_SEEDS_V181)?globalThis.__DELF50_SOURCE_SEEDS_V181:[];
 function usableSeed190(s){const z=(String(s.angle||'')+' '+String(s.factFr||'')).toLowerCase(),f=String(s.familyId||'');
@@ -319,7 +319,7 @@ for(const t of ['reading','listening']){
   const fp=String(t==='reading'?x.text:x.script).toLowerCase().replace(/\s+/g,' ').trim();if(fingerprints[t].has(fp))stats.issues.push({id:x.id,reason:'duplicate-content',other:fingerprints[t].get(fp)});else fingerprints[t].set(fp,x.id);
  }
 }
-if(before!==evidence())throw new Error('V1.8.16 source-calibrated input changed learning evidence');
+if(before!==evidence())throw new Error('V'+APP+' source-calibrated input changed learning evidence');
 stats.status=stats.issues.length?'warn':'pass';
 const readingView189=readingView;
 readingView=function(r){return String(readingView189(r)).replace(/<span class="pill blue">可用阶段 Day \d+\+<\/span>/g,'<span class="pill blue">今日阅读</span>')};
