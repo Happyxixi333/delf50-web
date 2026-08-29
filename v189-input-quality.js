@@ -325,11 +325,13 @@ const readingView189=readingView;
 readingView=function(r){return String(readingView189(r)).replace(/<span class="pill blue">可用阶段 Day \d+\+<\/span>/g,'<span class="pill blue">今日阅读</span>')};
 const listeningView189=listeningView;
 listeningView=function(l){return String(listeningView189(l)).replace(/<span class="pill blue">可用阶段 Day \d+\+<\/span>/g,'<span class="pill blue">今日听力</span>')};
-const top190=top;
-top=function(title,sub){
-  let h=String(top190(title,sub)||'');
-  return h.replace(/DELF50 · WEB V[^<]*/,'DELF50 · App '+APP+' · 内容版本 '+CONTENT);
-};
+const top190=typeof pageTop==='function'?pageTop:null;
+if(top190){
+  pageTop=function(title,sub){
+    let h=String(top190(title,sub)||'');
+    return h.replace(/DELF50 · WEB V[^<]*/,'DELF50 · App '+APP+' · 内容版本 '+CONTENT);
+  };
+}
 S.version=APP;
 if(S.meta172){S.meta172.appVersion=APP;S.meta172.contentVersion=CONTENT;S.meta172.inputQuality=ROUTE;S.meta172.studentInputMetadata='hidden-v2'}
 globalThis.__DELF50_INPUT_QUALITY={version:APP,contentVersion:CONTENT,route:ROUTE,sourceSeedCatalog:SOURCE_SEEDS_RAW.length,sourceSeeds:SOURCE_SEEDS.length,stats};
