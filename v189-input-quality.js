@@ -3,7 +3,16 @@
 const APP='1.8.16',CONTENT='1.8.8',ROUTE='source-calibrated-diverse-input-v2';
 const CURR=Array.isArray(globalThis.__DELF50_CURRICULUM_50)?globalThis.__DELF50_CURRICULUM_50:[];
 const SOURCE_SEEDS_RAW=Array.isArray(globalThis.__DELF50_SOURCE_SEEDS_V181)?globalThis.__DELF50_SOURCE_SEEDS_V181:[];
-function usableSeed190(s){const z=(String(s.angle||'')+' '+String(s.factFr||'')).toLowerCase();return !/\b(api|gtfs|netex|json|csv|format européen|référentiel|jeu de données|open data|données ouvertes|réutilisation des données|identifiant technique|flux de données)\b/.test(z)}
+function usableSeed190(s){const z=(String(s.angle||'')+' '+String(s.factFr||'')).toLowerCase(),f=String(s.familyId||'');
+ if(/\b(gtfs|netex|json|csv|schéma national|consolidation nationale|données brutes|documentation|source officielle|méthode d'enquête|mise à jour trimestrielle)\b/.test(z))return false;
+ if(f==='FT-JOBS'&&/api|référentiels métiers|offres actives/.test(z))return false;
+ if(f==='EDU-ANNUAIRE'&&/type d'établissement|statut public ou privé|effectifs|date d'ouverture|recherche territoriale|api/.test(z))return false;
+ if(f==='EDU-ORIENT'&&/données ouvertes|codes de formation|référentiels/.test(z))return false;
+ if(f==='AMELI-ANNUAIRE'&&/jeu de données|mise à jour de l'annuaire|tarifs non présents|horaires non présents/.test(z))return false;
+ if(f==='AMELI-DATA'&&!/lecture de tableau|information publique|données agrégées/.test(z))return false;
+ if(f==='SNCF-TRANS'&&/données ouvertes couvrent|périmètre des horaires|format/.test(z))return false;
+ if(f==='IRVE-MOBILITY'&&/schéma national|consolidation nationale|données statiques|données dynamiques/.test(z))return false;
+ return true;}
 const SOURCE_SEEDS=SOURCE_SEEDS_RAW.filter(usableSeed190);
 const SOURCE_GROUPS={};for(const s of SOURCE_SEEDS)(SOURCE_GROUPS[s.familyId]||(SOURCE_GROUPS[s.familyId]=[])).push(s);
 const SOURCE_FAMILIES=Object.keys(SOURCE_GROUPS);
@@ -17,15 +26,15 @@ const FAMILY_HINTS={
  'FT-JOBS':['emploi','candidature','travail','formation','métier'],
  'FT-MARKET':['emploi','marché du travail','recrutement','entreprise'],
  'TRAVAIL-TRAIN':['travail','formation','compétence','entreprise'],
- 'EDU-ANNUAIRE':['études','école','université','formation','orientation'],
- 'EDU-ORIENT':['études','orientation','formation','université','projet'],
+ 'EDU-ANNUAIRE':['études','école','université','formation','orientation','enfance','famille'],
+ 'EDU-ORIENT':['études','orientation','formation','université','projet','enfance'],
  'AMELI-ANNUAIRE':['santé','médecin','soin','sport','prévention'],
  'AMELI-DATA':['santé','prévention','soin','donnée'],
  'ECON-CONSUMER':['achat','consommation','service','réclamation','budget'],
  'INSEE-BUDGET':['budget','consommation','prix','achat','société'],
  'CNIL-DATA':['numérique','données','internet','technologie','service'],
  'CYBER-SAFETY':['numérique','sécurité','internet','technologie','message'],
- 'CULTURE-ACCESS':['culture','loisir','musée','livre','spectacle','ville']
+ 'CULTURE-ACCESS':['culture','loisir','musée','livre','spectacle','ville','week-end','enfance']
 };
 const READING_GENRES=['comparison','email','faq','article','forum','notice','testimony','interview','programme','report','rules','review'];
 const LISTENING_GENRES=['dialogue','phone','voicemail','announcement','interview','meeting','radio','podcast','briefing','voxpop','advice','report'];
@@ -134,7 +143,7 @@ function phaseAddition190(p,day,s1,s2,s3,t){const topic=String(p.topic||'la situ
  if(day<=30)return k===0?' Dans ce contexte de '+topic+', plusieurs solutions semblent possibles; il faut donc les comparer et justifier le choix.':k===1?' La difficulté consiste moins à trouver un mot précis qu’à relier la règle, la situation et sa conséquence.':k===2?' Une réponse correcte doit tenir compte de ce qui est explicitement dit et de ce que l’on peut raisonnablement déduire.':' La décision finale demande de hiérarchiser les informations au lieu de les traiter comme si elles avaient toutes la même importance.';
  return k===0?' Le document oppose plusieurs critères et oblige à distinguer faits, avis et conséquences avant de conclure.':k===1?' À ce niveau, comprendre le détail ne suffit plus : il faut aussi repérer l’intention, la nuance et la logique de l’ensemble.':k===2?' Les informations sont volontairement distribuées à plusieurs endroits; la bonne réponse dépend donc d’un rapprochement entre au moins deux éléments.':' Le lecteur ou l’auditeur doit identifier la position défendue, les limites reconnues et ce qui reste réellement établi par les faits.';
 }
-function sourceTitle190(seed,genre,day){const a=cap(seed.angle),m={comparison:'Comparer avant de choisir',email:'Une demande à clarifier',faq:'Questions pratiques',article:'Comprendre ce qui change',forum:'Conseils entre usagers',notice:'À savoir avant d’agir',testimony:'Une expérience concrète',interview:'Trois questions à un spécialiste',dialogue:'Une décision à prendre',phone:'Un appel pour vérifier',voicemail:'Un message avant de décider',announcement:'Information aux usagers',meeting:'Réunion : faits et options',radio:'La chronique pratique',podcast:'Retour d’expérience'};return (m[genre]||'Situation pratique')+' : '+a}
+function sourceTitle190(seed,genre,day){const a=cap(seed.angle),m={comparison:'Comparer avant de choisir',email:'Une demande à clarifier',faq:'Questions pratiques',article:'Comprendre ce qui change',forum:'Conseils entre usagers',notice:'À savoir avant d’agir',testimony:'Une expérience concrète',interview:'Trois questions à un spécialiste',dialogue:'Une décision à prendre',phone:'Un appel pour vérifier',voicemail:'Un message avant de décider',announcement:'Information aux usagers',meeting:'Réunion : faits et options',radio:'La chronique pratique',podcast:'Retour d’expérience',briefing:'Consignes avant d’agir',voxpop:'Trois avis, trois priorités',advice:'Le conseil pratique',report:'Le point sur la situation'};return (m[genre]||'Situation pratique')+' : '+a}
 function sourceText190(genre,p,s1,s2,s3){const f1=cap(s1.factFr),f2=cap(s2.factFr),f3=cap(s3.factFr),a=String(s1.angle).toLowerCase();switch(genre){
 case'comparison':return '<b>Votre objectif</b><br>'+cap(p.function||'choisir une solution')+'.<br><br><b>Option A</b> — '+f1+'<br><b>Option B</b> — '+f2+'<br><b>Option C</b> — '+f3+'<br><br>Pour choisir, il faut comparer les critères de départ et distinguer une règle, une possibilité et un simple avantage pratique.';
 case'email':return '<b>Message envoyé</b><br>Bonjour, je vous contacte au sujet de '+a+'. J’ai trouvé plusieurs informations et je voudrais savoir lesquelles s’appliquent vraiment à ma situation.<br><br><b>Réponse du service</b><br>'+f1+' '+f2+' Avant de poursuivre, vérifiez aussi les conditions utiles et conservez les échanges importants.<br><br><b>Dernier message</b><br>Merci. Je vais vérifier ce point avant de décider de la prochaine étape.';
