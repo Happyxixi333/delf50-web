@@ -342,7 +342,7 @@ for (const r of scopedR.concat(scopedL)) {
 }
 const shared = Object.entries(optionUse).filter(([, ids]) => ids.size > 1);
 check(shared.length === 0, `no distractor is shared between documents (days 4-${AUTHORED_UNTIL})`,
-  shared.slice(0, 3).map(([t, ids]) => `"${t.slice(0, 34)}" in ${ids.size}`).join('; '));
+  shared.slice(0, 3).map(([t, ids]) => `"${t.slice(0, 34)}" in ${[...ids].join('+')}`).join('; '));
 
 /* Internal routing identifiers must never reach the learner. */
 const leakRe = /(traceId|sourceSeed|contentId|familyId|semanticFingerprint|[rlwsa](?:177|181)-d\d{2}-s\d{2})/i;
