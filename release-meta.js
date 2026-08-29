@@ -4,13 +4,13 @@
   if(root)root.__DELF50_RELEASE=meta;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   return Object.freeze({
-    app:'1.8.18',
-    content:'1.8.8',
+    app:'1.8.19',
+    content:'1.8.9',
     schema:2,
     route:'source-driven-v1',
-    inputQuality:'source-calibrated-diverse-input-v2',
-    cacheKey:'v198-compat-ui-unified',
-    releaseLabel:'release-meta-v2',
+    inputQuality:'authentic-diversity-v3',
+    cacheKey:'v199-authentic-diversity',
+    releaseLabel:'release-meta-v3',
     updatedAt:'2026-08-29'
   });
 });

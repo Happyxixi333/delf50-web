@@ -4,24 +4,33 @@ A1+ → DELF B1 的 50 天网页备考训练系统。
 
 ## 当前生产版本
 
-- App：`1.8.18`
+- App：`1.8.19`
 - State Schema：`2`
-- Teaching Content：`1.8.8`
+- Teaching Content：`1.8.9`
 - 生产地址：`https://delf50-mvp.vercel.app`
 - 路由：`source-driven-v1`
 - 版本单一来源：`release-meta.js`
-- 题库质量：`source-calibrated-diverse-input-v2`
+- 题库质量：`authentic-diversity-v3`
 - 兼容保护 UI：`compat-ui-unified-v1`
 - 全题干审计：`full-question-audit-v1`
 - 高强度容量档：`8h-50d-core-v1`
 - 权威来源族：`18`
 - Source seeds：`180`
 
-当前生产壳版本为 V1.8.18，教学内容版本为 1.8.8。版本号、Schema、路由与题库质量标识由 `release-meta.js` 统一维护，并供启动页、运行时 UI 与 API Header 使用。
+当前生产壳版本为 V1.8.19，教学内容版本为 1.8.9。版本号、Schema、路由与题库质量标识由 `release-meta.js` 统一维护，并供启动页、运行时 UI 与 API Header 使用。
 
 V1.8.1 沿用 V1.8.0 的 Schema 2、完成锁定、全程唯一分配和 8 小时 × 50 天容量机制，并为 Day 3–50 接入 source-driven 题库层。18 个权威来源族共 180 个 source seeds 通过服务端固定 commit SHA 注入运行 bundle，再由 `v181-source-driven-content.js` 生成 reading / listening / writing / speaking / application 的新训练材料。
 
 本轮是 additive update，不重置、不重算已有学习记录。已经完成、已作答、已有草稿/正文或口语记录的历史槽位继续使用既有 Content ID 和历史证据；只有尚未开始的槽位允许接入 V1.8.1 新题库。
+
+
+## V1.8.19 authentic-diversity-v3
+
+本轮新增 `v199-authentic-materials.js` 作为最终学习材料质量层，仅重写 Day 5–50 中尚未开始的 reading / listening / writing / speaking / application 槽位。Day 1–4 以及任何已经作答、提交、录音、完成或存在草稿证据的 Content ID 均保持锁定，不重置历史学习记录。
+
+材料设计以 France Éducation international 的 DELF B1 官方样题与备考说明校准题型、篇幅、交际任务与 B1 难度，并使用公开新闻/公共议题作为事实与语境种子，再进行原创教学改写。当前语境覆盖学校数字化、手机规则、强热天气与出行、气候与城市适应、工作、住房、文化、健康与学习等主题；不复制新闻原文，也不把官方样题正文批量写入题库。
+
+多样性从输入和产出两端同时控制：阅读与听力分别覆盖 12 种文体/音频形态，写作和口语各覆盖 8 种任务形态；材料不再由单一固定模板只替换主题词。运行时还会对学生可见文本执行开发标记泄漏检查、全文重复检查和 3-gram 高相似度检查；学生界面统一移除 `traceId`、`sourceSeedId`、`Content ID`、slot、旧 Dossier/Audio 内部编号和 provenance 调试卡片。
 
 ## V1.8.1 source-driven 题库
 
