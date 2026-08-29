@@ -4,19 +4,20 @@ A1+ → DELF B1 的 50 天网页备考训练系统。
 
 ## 当前生产版本
 
-- App：`1.8.17`
+- App：`1.8.18`
 - State Schema：`2`
 - Teaching Content：`1.8.8`
 - 生产地址：`https://delf50-mvp.vercel.app`
 - 路由：`source-driven-v1`
 - 版本单一来源：`release-meta.js`
 - 题库质量：`source-calibrated-diverse-input-v2`
+- 兼容保护 UI：`compat-ui-unified-v1`
 - 全题干审计：`full-question-audit-v1`
 - 高强度容量档：`8h-50d-core-v1`
 - 权威来源族：`18`
 - Source seeds：`180`
 
-当前生产壳版本为 V1.8.17，教学内容版本为 1.8.8。版本号、Schema、路由与题库质量标识由 `release-meta.js` 统一维护，并供启动页、运行时 UI 与 API Header 使用。
+当前生产壳版本为 V1.8.18，教学内容版本为 1.8.8。版本号、Schema、路由与题库质量标识由 `release-meta.js` 统一维护，并供启动页、运行时 UI 与 API Header 使用。
 
 V1.8.1 沿用 V1.8.0 的 Schema 2、完成锁定、全程唯一分配和 8 小时 × 50 天容量机制，并为 Day 3–50 接入 source-driven 题库层。18 个权威来源族共 180 个 source seeds 通过服务端固定 commit SHA 注入运行 bundle，再由 `v181-source-driven-content.js` 生成 reading / listening / writing / speaking / application 的新训练材料。
 
@@ -120,3 +121,4 @@ V1.8.1 的 source seeds 使用法国公共服务、就业、教育、医疗、�
 - `v173-learning-archive.js`
 - `api/source.js`
 - `index.html`（loader cache key 由 `release-meta.js` 提供）\n- `release-meta.js`（App / Content / Schema / Route / Input Quality 的单一版本源）
+- `v198-release-ui.js`（兼容与升级保护页面统一读取当前发布版本与最新运行审计）
