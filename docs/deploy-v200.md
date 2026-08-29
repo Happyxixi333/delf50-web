@@ -47,16 +47,16 @@ git push origin main
 ```bash
 # 1. 版本已更新
 curl -s https://delf50-mvp.vercel.app/release-meta.js | grep -E "app:|content:|cacheKey:"
-#    期望 app:'1.9.1'  content:'1.9.1'  cacheKey:'v200-corpus-authored-full50'
+#    期望 app:'1.9.2'  content:'1.9.2'  cacheKey:'v200-answer-order-randomized'
 
 # 2. bundle 正常，且来自部署本体而不是 GitHub
-curl -sI "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-full50-full50" \
+curl -sI "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-answer-order-randomized" \
   | grep -iE "x-delf50-(app|build|bundle-origin|student-content)"
 #    期望 x-delf50-bundle-origin: deployment-local-v1
 
 # 3. 新材料在，旧生成层已下线
-curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-full50-full50" | grep -c "__DELF50_CORPUS_V200"   # ≥1
-curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-full50-full50" | grep -c "authentic-diversity-v3" # 0
+curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-answer-order-randomized" | grep -c "__DELF50_CORPUS_V200"   # ≥1
+curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-answer-order-randomized" | grep -c "authentic-diversity-v3" # 0
 ```
 
 打开网站后，在「进度」页应看到新增的「学习材料校验」卡片，状态为「✓ 全部通过」。
@@ -68,7 +68,7 @@ curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-fu
 | 文件 | 状态 | 作用 |
 |---|---|---|
 | `scripts/build-bundle.js` | 新增 | 从仓库文件生成 `build/bundle-parts.js`，含 seed 校验与语法校验 |
-| `scripts/verify.js` | 新增 | jsdom 端到端验证：学习记录保护 + 内容质量，共 34 项断言 |
+| `scripts/verify.js` | 新增 | jsdom 端到端验证：学习记录保护 + 内容质量 + 选项位置，共 41 项断言 |
 | `build/bundle-parts.js` | 新增（生成物） | 随部署发布的 bundle，改内容后需重新生成 |
 | `api/source.js` | 重写 | 从本地读取 bundle，不再抓 GitHub；浏览器接口契约不变 |
 | `content/corpus-v200.js` | 新增 | Day 4 听力 s02–s04、Day 5–7 阅读听力各 4 篇（27 篇） |
@@ -83,7 +83,7 @@ curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-fu
 | `content/corpus-v200-d46-d50.js` | 新增 | Day 46–50（40 篇） |
 | `v200-corpus-materials.js` | 新增 | 装载层：阻断式校验、身份锁定、来源显示、审计上屏 |
 | `v176-day2-reading-repair.js` | 改为非破坏性 | 不再删除答题记录与回退计数器 |
-| `release-meta.js` | 版本 1.9.0 | `cacheKey` 改为 `v200-corpus-authored`，击穿 CDN 缓存 |
+| `release-meta.js` | 版本 1.9.2 | `cacheKey` 改为 `v200-answer-order-randomized`，击穿 CDN 缓存 |
 | `index.html` | 删除死代码 | 移除已失效的 commit 常量；加载契约未变 |
 | `README.md` | 更新 | 记录架构改动、内容口径与验证方式 |
 
@@ -98,3 +98,32 @@ NODE_PATH=$(npm root -g) node scripts/verify.js   # 需要 jsdom：npm i -g jsdo
 
 `scripts/verify.js` 会先检查 `build/bundle-parts.js` 是否与源文件一致，不一致直接失败——
 避免「改了材料但没构建，线上没变化」这类问题。
+
+## 1.9.2：选项位置随机化
+
+1.9.1 的全部 1368 道语料题，正确项都写在第一个选项；渲染层按数组顺序输出，
+所以「每题都点第一个」可以在 Day 4–50 拿满分。Day 1–3 由旧生成层产出，同样有
+76% 的正确项在第一位。1.9.2 修掉了这个问题。
+
+**随机方式**：用题目内容（题干 + 正确项原文）的 FNV-1a 哈希驱动 xorshift32，
+对选项做 Fisher–Yates 洗牌，装载时执行一次。
+
+**为什么不在渲染时随机**：`S.reading.answers` 存的是选项下标。每次渲染重排，
+学习者昨天存的下标就会指向另一个选项，正确率与错题本全部错乱。内容派生的种子
+既保证分布均匀无周期，又保证同一道题在任何设备、任何会话、任何一次重新部署下
+排列完全一致。
+
+**对已有学习记录的保护**：学习者接触过的条目（按身份判断，不按槽位序号）一律
+跳过，不洗牌也不改写。以「Day 1–3 全部完成、Day 4–8 语法完成、Day 4 阅读完成、
+Day 4 听力完成 1 篇」的真实进度做过新旧版本逐字节对比：22 篇已完成材料的正文、
+题干、选项顺序、正确项下标全部一致，计数器、答案、草稿、时间戳零丢失。
+
+**上线后自查**（浏览器控制台）：
+
+```js
+__DELF50_CORPUS_AUDIT.answerBalance
+// { total, positions:{0:…,1:…,2:…}, maxShare≈0.35, maxDeviation<0.20, ok:true }
+__DELF50_CORPUS_AUDIT.balanceSkipped   // 因你已做过而未洗牌的条目数
+```
+
+「进度」页的「学习材料校验」卡片会直接显示正确答案位置分布。
