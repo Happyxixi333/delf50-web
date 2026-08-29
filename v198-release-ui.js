@@ -8,16 +8,12 @@
     try{
       if(window.DELF50_FULL_AUDIT&&typeof window.DELF50_FULL_AUDIT.run==='function')full=window.DELF50_FULL_AUDIT.run();
     }catch(e){}
-    const input=globalThis.__DELF50_INPUT_QUALITY&&globalThis.__DELF50_INPUT_QUALITY.stats||null;
     const source=globalThis.__delfV181&&globalThis.__delfV181.audit||null;
     const slots=full&&full.counts?Object.values(full.counts).reduce((n,x)=>n+Number(x&&x.slots||0),0):Number(source&&source.generated||0);
-    const unresolved=Number(full&&Array.isArray(full.unresolved)?full.unresolved.length:0);
-    const grammarDup=Number(full&&full.grammar&&Array.isArray(full.grammar.exactDuplicates)?full.grammar.exactDuplicates.length:0);
-    const inputIssues=Number(input&&Array.isArray(input.issues)?input.issues.length:0);
-    const sourceOk=!source||source.ok!==false;
-    const inputOk=!input||input.status==='pass';
-    const fullOk=!full||full.ok===true;
-    return{ok:fullOk&&inputOk&&sourceOk,slots,unresolved,grammarDup,inputIssues,full,input,source};
+    const fullIdIssues=full&&Array.isArray(full.unresolved)?full.unresolved.filter(x=>x&&/content-id/i.test(String(x.kind||''))):[];
+    const sourceIdIssues=source&&Array.isArray(source.ids)?source.ids:[];
+    const duplicateIds=fullIdIssues.length+sourceIdIssues.length;
+    return{ok:duplicateIds===0,slots,duplicateIds,fullIdIssues,sourceIdIssues,full,source};
   }
 
   function snapshot198(){
@@ -26,17 +22,17 @@
 
   function compatCard198(){
     const a=audit198(),m=S&&S.meta172||{},migrationCount=Array.isArray(m.migrations)?m.migrations.length:0;
-    const open=a.unresolved+a.grammarDup+a.inputIssues;
+    const open=a.duplicateIds;
     return '<div class="card"><h2>兼容与升级保护</h2>'+
       '<div class="grid3">'+
         '<div class="metric"><span>状态 Schema</span><b>'+RELEASE.schema+'</b><span>只做向后兼容迁移</span></div>'+
         '<div class="metric"><span>教学内容版本</span><b>'+RELEASE.content+'</b><span>当前发布内容</span></div>'+
-        '<div class="metric"><span>Content ID</span><b>'+(a.ok?'稳定':'需检查')+'</b><span>'+a.slots+' 有效槽位 · '+open+' 未解决项</span></div>'+
+        '<div class="metric"><span>Content ID</span><b>'+(a.ok?'稳定':'需检查')+'</b><span>'+a.slots+' 有效 Content ID · '+open+' 重复</span></div>'+
       '</div>'+
       '<div class="callout '+(a.ok?'good':'warn')+'" style="margin-top:10px">'+
         (a.ok
           ?'当前有效内容分配与最新题库审计一致；新增模块继续使用独立字段和 migration。已有学习计数、文本、错题与录音引用不得减少，已开始或已完成内容继续按 ID 锁定。'
-          :'最新运行审计仍有未解决项；系统不会因此改写已有学习证据。请以当前 full audit / input quality audit 为准，不再使用旧兼容层的重复 Trace ID 统计。')+
+          :'当前有效 Content ID 仍有重复项需要检查；系统不会因此改写已有学习证据。这里仅统计有效 Content ID，不再把题干、正文或旧 Trace ID 重复混入此指标。')+
       '</div>'+
       '<div class="storage">App '+RELEASE.app+' · Content '+RELEASE.content+' · 迁移记录：'+migrationCount+' · 安全快照：'+snapshot198()+'</div>'+
     '</div>';
