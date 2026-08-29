@@ -329,7 +329,9 @@ const top190=typeof pageTop==='function'?pageTop:null;
 if(top190){
   pageTop=function(title,sub){
     let h=String(top190(title,sub)||'');
-    return h.replace(/DELF50 · WEB V[^<]*/,'DELF50 · App '+APP+' · 内容版本 '+CONTENT);
+    if(/DELF50 · WEB V[^<]*/.test(h))return h.replace(/DELF50 · WEB V[^<]*/,'DELF50 · App '+APP+' · 内容版本 '+CONTENT);
+    if(/DELF50 · A1\+ → B1/.test(h))return h.replace(/DELF50 · A1\+ → B1/,'DELF50 · A1+ → B1 · App '+APP+' · 内容版本 '+CONTENT);
+    return '<div class="muted">App '+APP+' · 内容版本 '+CONTENT+'</div>'+h;
   };
 }
 S.version=APP;
