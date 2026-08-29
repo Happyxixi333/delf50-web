@@ -69,5 +69,93 @@ const GRAMMAR=[
   ['« Où habitez-vous ? » → Il demande ___.',['où vous habitez','où habitez-vous','si où vous habitez'],0,'特殊疑问词保留，语序回到陈述句。'],
   ['Le conseiller explique : « Vous devez confirmer. » → Il explique ___.',['que vous devez confirmer','si vous devez confirmer ?','que devez-vous confirmer'],0,'expliquer que + proposition。'],
   ['Quelle phrase rapporte une information ?',['Elle dit qu’elle arrivera demain.','Elle demande arrivera-t-elle demain.','Elle dit si demain ?'],0,'dire que 用于转述陈述。'],
-  ['« Est-ce que vous avez reçu mon mail ? » → Je demande ___.',['si vous avez reçu mon mail','que vous avez reçu mon mail ?','est-ce que vous avez reçu mon mail'],0,'转述是/否问题：demander si。']
+  ['« Est-ce que vous avez reçu mon mail ? » → Je demande ___.',['si vous avez reçu mon mail','que vous avez reçu mon mail ?','est-ce que vous avez reçu mon mail'],0,'转述是/否问题：demander si。'],
+ {id:'negationB1',name:'Négation B1',level:'B1',use:'ne…que / aucun / ni…ni 与限制、投诉、论证',ex:['Je n’ai reçu aucune réponse.','Ce service ne fonctionne que le matin.'],qs:[
+  ['Je n’ai reçu ___ réponse.',['aucune','pas aucune','rien de'],0,'aucun/aucune 可直接限定名词。'],
+  ['Le service ne fonctionne ___ le matin.',['que','pas que','aucun'],0,'ne…que 表示“只/仅仅”。'],
+  ['Je ne prends ___ le bus ___ le métro.',['ni / ni','pas / ou','aucun / et'],0,'ne…ni…ni 表示两项都否定。'],
+  ['___ solution ne convient.',['Aucune','Rien','Pas'],0,'aucune + nom。'],
+  ['Il n’a parlé à ___.',['personne','aucun personne','rien'],0,'ne…personne 指人。'],
+  ['Quelle phrase exprime une restriction ?',['Je ne peux venir que mardi.','Je ne peux jamais venir mardi.','Je peux venir aucun mardi.'],0,'ne…que = seulement。']
+ ]},
+ {id:'passive',name:'Voix passive',level:'B1',use:'突出结果、程序和受事者，理解正式通知',ex:['Le dossier est envoyé.','La réunion a été annulée.'],qs:[
+  ['Le dossier ___ demain.',['sera envoyé','enverra été','est envoyer'],0,'被动态：être + participe passé。'],
+  ['La réunion ___ hier.',['a été annulée','a annulé','était annuler'],0,'passé composé 被动：a été + participe passé。'],
+  ['« On vérifie les documents » →',['Les documents sont vérifiés.','Les documents vérifient.','Les documents ont vérifier.'],0,'宾语成为被动句主语。'],
+  ['Les lettres sont ___.',['envoyées','envoyer','envoyé'],0,'过去分词与被动主语配合。'],
+  ['Quelle phrase met l’accent sur le résultat ?',['La demande a été acceptée.','Le service accepte parfois.','Nous allons accepter peut-être.'],0,'被动态可突出处理结果。'],
+  ['Le formulaire doit ___ avant vendredi.',['être signé','signer être','été signer'],0,'modal + être + participe passé。']
+ ]},
+ {id:'gerondif',name:'Gérondif',level:'B1',use:'表达同时、方式或条件，压缩两个相关动作',ex:['En travaillant, j’écoute la radio.','On apprend en pratiquant.'],qs:[
+  ['On progresse ___ régulièrement.',['en pratiquant','en pratiquer','pratiquant de'],0,'gérondif：en + participe présent。'],
+  ['Il écoute un podcast ___ au travail.',['en allant','en aller','va en'],0,'同时发生的动作可用 gérondif。'],
+  ['___ plus tôt, vous éviterez le trafic.',['En partant','En partir','Parti en'],0,'gérondif 可表达条件/方式。'],
+  ['Forme de faire :',['en faisant','en faissant','en fait'],0,'participe présent de faire = faisant。'],
+  ['Le sujet du gérondif est normalement…',['le même que celui du verbe principal','toujours différent','sans importance grammaticale'],0,'基础 B1 用法中通常共享主语。'],
+  ['Quelle phrase exprime la manière ?',['Il a appris en regardant des vidéos.','Il a appris pour regarder hier.','Il apprendra regardé.'],0,'en + participe présent 可说明方式。']
+ ]},
+ {id:'ppagreement',name:'Accord du participe passé',level:'B1',use:'être 与前置 COD/关系代词中的过去分词配合',ex:['Elles sont arrivées.','Les lettres que j’ai écrites…'],qs:[
+  ['Elles sont ___.',['arrivées','arrivé','arriver'],0,'être 作助动词时与主语配合。'],
+  ['Les lettres que j’ai ___ sont longues.',['écrites','écrit','écrire'],0,'前置 COD 可触发配合。'],
+  ['Marie ? Je l’ai ___.',['vue','vu','voir'],0,'l’ 指 Marie，前置直接宾语。'],
+  ['Ils se sont ___ tôt.',['levés','levé','lever'],0,'常见代词动词基础配合。'],
+  ['La décision que nous avons ___…',['prise','pris','prendre'],0,'que 指阴性单数 décision。'],
+  ['Quelle forme est correcte ?',['Elles sont parties.','Elles ont parties.','Elles sont parti.'],0,'partir 用 être，并与 elles 配合。']
+ ]},
+ {id:'prepositionalVerbs',name:'Verbes + à / de',level:'B1',use:'掌握 penser à / parler de / arrêter de 等高频动词支配',ex:['Je pense à ce projet.','J’ai décidé de partir.'],qs:[
+  ['Je pense ___ changer de travail.',['à','de','pour'],0,'penser à + infinitif/nom。'],
+  ['Il a décidé ___ partir.',['de','à','pour de'],0,'décider de + infinitif。'],
+  ['Nous avons arrêté ___ fumer.',['de','à','pour'],0,'arrêter de + infinitif。'],
+  ['Elle s’intéresse ___ la culture.',['à','de','pour'],0,'s’intéresser à。'],
+  ['Il parle ___ son projet.',['de','à','pour'],0,'parler de quelque chose。'],
+  ['« Il pense à son avenir » →',['Il y pense.','Il en pense.','Il lui pense.'],0,'à + chose 可由 y 替代。']
+ ]},
+ {id:'doublePronouns',name:'Double pronominalisation',level:'B1',use:'组合 COD/COI/y/en，提升口语和写作自然度',ex:['Je le lui donne.','Je vous en parle.'],qs:[
+  ['Je donne le document à Marie → Je ___.',['le lui donne','lui le donne','donne le lui'],0,'le/la/les + lui/leur + verbe。'],
+  ['Il envoie les photos à ses parents → Il ___.',['les leur envoie','leur les envoie','en les leur'],0,'les + leur + verbe。'],
+  ['Je parle de ce problème à Paul → Je ___.',['lui en parle','en lui parle de','le lui parle'],0,'lui + en + verbe。'],
+  ['Tu apportes le dossier à moi → Tu ___.',['me l’apportes','le me apportes','m’en apportes le'],0,'me/te/se/nous/vous + le/la/les。'],
+  ['Nous allons donner la réponse aux clients → Nous allons ___.',['la leur donner','leur la donner','donner leur la'],0,'infinitif 前保持代词顺序。'],
+  ['Quelle phrase est correcte ?',['Je vous l’envoie demain.','Je le vous envoie demain.','Je vous envoie le demain.'],0,'vous + le/la/l’ + verbe。']
+ ]},
+ {id:'indefinitePronouns',name:'Pronoms indéfinis',level:'B1',use:'表达某些、若干、所有/无人等非特指信息',ex:['Certains préfèrent le train.','Plusieurs sont d’accord.'],qs:[
+  ['___ préfèrent travailler à distance.',['Certains','Certain','Quelque'],0,'certains 可独立作代词。'],
+  ['J’ai invité dix personnes ; ___ sont venues.',['plusieurs','beaucoup de','chaque'],0,'plusieurs 可独立指代复数人/物。'],
+  ['___ peut participer, si les conditions sont respectées.',['Chacun','Chaque','Quelques de'],0,'chacun 是代词。'],
+  ['Je n’ai vu ___.',['personne','quelqu’un pas','aucuns'],0,'personne 可在否定结构中作不定代词。'],
+  ['Il y a deux solutions ; ___ ont des avantages.',['les deux','chaque','aucune des deux sont'],0,'les deux 可指代前述两项。'],
+  ['Quelle phrase évite une répétition ?',['Certains sont pour, d’autres sont contre.','Certains personnes sont pour.','Quelque sont contre.'],0,'certains/d’autres 是常用组合。']
+ ]},
+ {id:'relativesB1',name:'Dont & relatifs composés',level:'B1',use:'表达 de/介词关系，构造更精确复合句',ex:['Le sujet dont je parle…','La ville dans laquelle je vis…'],qs:[
+  ['Le projet ___ je parle est important.',['dont','que','où'],0,'parler de → dont。'],
+  ['C’est une personne ___ j’ai besoin.',['dont','que','qui'],0,'avoir besoin de → dont。'],
+  ['La table sur ___ j’ai posé le dossier…',['laquelle','dont','que'],0,'介词 sur + laquelle。'],
+  ['Les collègues avec ___ je travaille…',['lesquels','dont','qui'],0,'avec + lesquels。'],
+  ['La raison pour ___ je téléphone…',['laquelle','dont','que'],0,'pour + laquelle。'],
+  ['Quelle phrase est correcte ?',['Voici le problème auquel je pense.','Voici le problème que je pense à.','Voici le problème dont je pense à.'],0,'penser à → auquel/à laquelle。']
+ ]},
+ {id:'emphasis',name:'Mise en relief',level:'B1',use:'用 ce qui / ce que / ce dont… c’est 突出观点与重点',ex:['Ce qui compte, c’est la régularité.','Ce dont j’ai besoin, c’est de temps.'],qs:[
+  ['___ m’intéresse, c’est la solution proposée.',['Ce qui','Ce que','Ce dont'],0,'从句里缺主语 → ce qui。'],
+  ['___ je préfère, c’est partir tôt.',['Ce que','Ce qui','Ce dont'],0,'从句里缺直接宾语 → ce que。'],
+  ['___ j’ai besoin, c’est d’une réponse claire.',['Ce dont','Ce que','Ce qui'],0,'avoir besoin de → ce dont。'],
+  ['Ce que je veux dire, ___ que cette option est plus simple.',['c’est','est','ce'],0,'固定强调框架。'],
+  ['Quelle phrase met clairement une idée en relief ?',['Ce qui est important, c’est de vérifier les horaires.','Il est important vérifier les horaires c’est.','Ce que important est horaires.'],0,'ce qui… c’est… 是常用强调结构。'],
+  ['« J’aime surtout la liberté. » →',['Ce que j’aime surtout, c’est la liberté.','Ce qui j’aime, la liberté.','Ce dont j’aime est liberté.'],0,'aimer 的 COD → ce que。']
+ ]},
+ {id:'nominalisation',name:'Nominalisation',level:'B1',use:'正式写作中把动作转成名词，压缩和组织信息',ex:['décider → une décision','inscrire → une inscription'],qs:[
+  ['décider →',['une décision','un décidement','une décider'],0,'常见 nominalisation：décision。'],
+  ['répondre →',['une réponse','un répondage','une répondre'],0,'réponse。'],
+  ['s’inscrire →',['une inscription','un inscrive','une inscritionner'],0,'inscription。'],
+  ['« Le service a annulé la réunion » →',['l’annulation de la réunion','annuler de la réunion','la réunion annulera'],0,'annulation de…'],
+  ['Quel style est plus adapté à un courriel formel ?',['Après réception de votre message…','Après vous recevez message…','Après recevoir vous…'],0,'名词化可提高正式书面组织度。'],
+  ['« Nous avons confirmé votre réservation » →',['la confirmation de votre réservation','le confirmer votre réservation','votre réservation confirmant'],0,'confirmation de…']
+ ]},
+ {id:'logicalB1',name:'Relations logiques B1',level:'B1',use:'目的、让步、原因、结果与对立的完整论证链',ex:['bien que…','pour que…','par conséquent…'],qs:[
+  ['Je répète ___ tout le monde comprenne.',['pour que','parce que','donc'],0,'pour que + subjonctif 表达目的。'],
+  ['___ ce soit plus cher, je préfère cette option.',['Bien que','Parce que','Donc'],0,'bien que + subjonctif 表达让步。'],
+  ['Il est parti plus tôt ___ il était malade.',['puisqu’','par conséquent','malgré'],0,'puisque 引出原因。'],
+  ['Le train est supprimé ; ___, nous prendrons le bus.',['par conséquent','bien que','afin que'],0,'par conséquent 引出结果。'],
+  ['___ le prix élevé, l’hôtel est complet.',['Malgré','Parce que','Pour que'],0,'malgré + nom 表让步。'],
+  ['Je prépare les documents ___ gagner du temps.',['afin de','afin que je','bien que'],0,'同主语时 afin de + infinitif 表目的。']
+ ]}
  ]}];
