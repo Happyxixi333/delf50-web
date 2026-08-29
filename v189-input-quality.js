@@ -68,7 +68,7 @@ const CASES={
  ]
 };
 function bank(t){if(t==='reading')return typeof V13_READINGS!=='undefined'?V13_READINGS:READINGS;return typeof V13_LISTENINGS!=='undefined'?V13_LISTENINGS:LISTENINGS}
-function parse(x){const m=String(x&&x.id||'').match(/^([rl])(177|181)-d(\d{2})-s(\d{2})$/i);if(!m)return null;return{type:m[1].toLowerCase()==='r'?'reading':'listening',day:Number(m[3]),slot:Number(m[4])-1}}
+function parse(x){const m=String(x&&x.id||'').match(/^([rl])(177|181)-d(\d{2})-s(\d{2})$/i);if(!m)return null;return{type:m[1].toLowerCase()==='r'?'reading':'listening',generation:Number(m[2]),day:Number(m[3]),slot:Number(m[4])-1}}
 function plan(day){return CURR.find(x=>Number(x.day)===Number(day))||{day:Number(day),topic:'vie quotidienne',grammar:'',function:'comprendre / agir',title:'Entraînement'}}
 function category(p){const z=(String(p.topic||'')+' '+String(p.title||'')+' '+String(p.function||'')).toLowerCase();if(/voyage|transport|incident|trajet|week-end/.test(z))return'travel';if(/travail|emploi|étude|candid|formation|courriel/.test(z))return'work';if(/santé|sommeil|sport/.test(z))return'health';if(/logement|réclamation|voisin/.test(z))return'housing';if(/culture|musée|loisir|livre/.test(z))return'culture';if(/technolog|numérique|écran|réseau/.test(z))return'technology';if(/environnement|énergie|déchet|gaspillage/.test(z))return'environment';if(/société|opinion|débat|école|université/.test(z))return'society';if(/ville|service public|alimentation|quotidien|identité|routine/.test(z))return'city';return'daily'}
 function done(day,t){return Number(S&&S.daily&&S.daily[String(day)]&&S.daily[String(day)][t]||0)}
@@ -78,7 +78,7 @@ function completed(t,id){return !!(S&&S.contentProgress172&&S.contentProgress172
 function locked(t,day,slot,id){return slot<done(day,t)||hasAnswer(t,day,id)||completed(t,id)}
 function evidence(){return JSON.stringify({daily:S.daily,reading:{answers:S.reading&&S.reading.answers,attempts:S.reading&&S.reading.attempts,correct:S.reading&&S.reading.correct,index:S.reading&&S.reading.index},listening:{answers:S.listening&&S.listening.answers,attempts:S.listening&&S.listening.attempts,correct:S.listening&&S.listening.correct,index:S.listening&&S.listening.index},completed:S.contentProgress172&&S.contentProgress172.completed})}
 function cap(s){s=String(s||'').trim();return s?s.charAt(0).toUpperCase()+s.slice(1):s}
-function pickCase(p,day,slot){const a=CASES[category(p)]||CASES.daily;return a[(day+slot*3)%a.length]}
+function pickCase(p,day,slot,generation){const a=CASES[category(p)]||CASES.daily;return a[(day+slot*3+(Number(generation)===181?1:0))%a.length]}
 function person(day,slot){return PEOPLE[(day*3+slot)%PEOPLE.length]}
 function city(day,slot){return CITIES[(day+slot*2)%CITIES.length]}
 function dayName(day,slot){return DAYS[(day+slot)%DAYS.length]}
@@ -96,10 +96,34 @@ function readingBody(p,c,day,slot){const pe=person(day,slot),name=pe[0],pro=pe[1
  if(day>=19)s+=' Le document insiste aussi sur la différence entre une préférence personnelle et une contrainte objective : le choix peut varier selon les priorités, mais les horaires, les conditions et les conséquences doivent être vérifiés de la même manière.';
  if(day>=31)s+=' Un autre point complique la décision : toutes les personnes concernées n’accordent pas la même importance au confort, au prix et au temps. Pour comprendre le document, il faut donc distinguer les faits, les avis exprimés et la conclusion réellement justifiée.';
  return s}
-function makeReading(old,p,day,slot){const c=pickCase(p,day,slot),pe=person(day,slot),name=pe[0],cityName=city(day,slot),text=readingBody(p,c,day,slot),qs=[
- mc(old,1,'Quel est le but principal de ce document ?','Présenter une difficulté concrète et la manière de choisir une solution adaptée.','Annoncer la fermeture définitive du lieu.','Raconter un événement sans lien avec une décision.','Le document relie une contrainte réelle à plusieurs possibilités avant de justifier un choix.',day+slot),
- mc(old,2,'Quel élément pèse le plus dans la décision de '+name+' ?','La contrainte décrite dans le document et ses conséquences pratiques.','Le fait de choisir systématiquement l’option la moins chère.','Le désir d’éviter tout changement, quelles que soient les conditions.','La décision n’est pas fondée sur un détail isolé mais sur la contrainte et les effets des options.',day+slot+7),
- mc(old,3,day<19?'Pourquoi la solution retenue paraît-elle plus raisonnable ?':'Quelle conclusion est la mieux justifiée par le texte ?','Elle répond mieux à la contrainte principale tout en gardant une marge réaliste.','Elle supprime toutes les contraintes sans aucun compromis.','Elle est choisie uniquement parce qu’elle est la plus rapide.','Il faut croiser plusieurs informations du document pour comprendre pourquoi cette solution est retenue.',day+slot+13)
+function makeReading(old,p,day,slot,generation){const c=pickCase(p,day,slot,generation),pe=person(day,slot+(Number(generation)===181?1:0)),name=pe[0],cityName=city(day,slot+(Number(generation)===181?1:0)),text=readingBody(p,c,day,slot),issue=cap(c[3])+'.',solution=cap(c[4])+'.',detail=cap(c[5])+'.',result=cap(c[6])+'.',style=slot%4;
+ const q1=[
+  ['Pourquoi '+name+' écrit-il ou écrit-elle ce message ?','Parce qu’une contrainte l’oblige à vérifier une solution avant de confirmer.','Pour obtenir une réduction qui n’est jamais évoquée.','Pour annoncer qu’il ou elle renonce définitivement à son projet.'],
+  ['Quel problème pratique le document cherche-t-il surtout à résoudre ?','Une organisation prévue devient moins adaptée à cause d’une contrainte précise.','Le lieu ferme définitivement et aucune solution n’existe.','La personne cherche seulement une information historique sans devoir agir.'],
+  ['Pourquoi '+name+' raconte-t-il ou raconte-t-elle cette expérience ?','Pour expliquer comment une difficulté a conduit à modifier une décision.','Pour décrire un lieu sans raconter ce qui s’est passé.','Pour montrer qu’aucune vérification n’était nécessaire.'],
+  ['Que compare principalement '+name+' avant de choisir ?','Les conséquences concrètes de deux solutions possibles.','Deux opinions sans rapport avec la situation.','Uniquement le prix, sans tenir compte des autres contraintes.']
+ ][style];
+ const q2=[
+  ['Quel élément rend l’alternative réellement possible ?',detail,'Le fait que toutes les contraintes aient disparu.','Une promesse de remboursement qui n’est pas mentionnée.'],
+  ['Quelle information change la manière d’évaluer les options ?',detail,'Une fermeture définitive du service.','Le souhait de ne consulter aucune information.'],
+  ['Qu’est-ce qui permet à '+name+' d’envisager une autre organisation ?',detail,'L’absence totale de contrainte.','Une décision prise au hasard avant de se renseigner.'],
+  ['Quel détail rend la seconde option plus intéressante ?',detail,'Le fait qu’elle ne demande aucune adaptation.','Un avantage financier qui n’apparaît pas dans le document.']
+ ][style];
+ const q3=day<19?[
+  ['Pourquoi la décision finale est-elle cohérente ?',result,'Parce que la personne choisit toujours l’option la plus rapide.','Parce qu’elle ignore la difficulté de départ.'],
+  ['Quelle réaction correspond le mieux aux informations du document ?',solution,'Annuler immédiatement sans vérifier.','Garder le plan initial même s’il ne répond plus aux contraintes.'],
+  ['Qu’a fait '+name+' après avoir compris la difficulté ?',solution,'Il ou elle a cessé toute démarche.','Il ou elle a choisi sans comparer les possibilités.'],
+  ['Quelle conclusion résume le mieux la décision ?',result,'Le premier choix était parfait et ne présentait aucun risque.','La personne refuse tout compromis même si la situation change.']
+ ][style]:[
+  ['Quelle conclusion est la mieux justifiée par le document ?',result,'Une préférence personnelle suffit toujours pour décider.','La solution la moins chère est nécessairement la meilleure.'],
+  ['Que montre surtout la décision finale ?',result,'Les faits ont moins d’importance que les impressions.','Il vaut mieux conserver le premier choix, même quand les conditions changent.'],
+  ['Que peut-on déduire de la manière dont '+name+' décide ?',result,'Il ou elle ne distingue pas les faits des préférences.','Il ou elle cherche une solution sans vérifier les conséquences.'],
+  ['Pourquoi le choix final n’est-il pas présenté comme évident ?',result,'Parce qu’aucune information concrète n’est disponible.','Parce que les deux solutions sont exactement identiques.']
+ ][style];
+ const qs=[
+  mc(old,1,q1[0],q1[1],q1[2],q1[3],'La première question porte sur la situation générale et le but du document.',day+slot+(generation||0)),
+  mc(old,2,q2[0],q2[1],q2[2],q2[3],'Il faut relier cette réponse au détail qui modifie réellement la comparaison.',day+slot+7+(generation||0)),
+  mc(old,3,q3[0],q3[1],q3[2],q3[3],'La bonne réponse doit rester cohérente avec la contrainte, la solution et la conséquence finale.',day+slot+13+(generation||0))
  ];return{...old,title:readTitle(c,cityName,slot),text,qs,quality189:{route:ROUTE,genre:['courriel','information pratique','témoignage','comparaison'][slot%4],day}}}
 function listeningScript(p,c,day,slot){const pe=person(day,slot+2),name=pe[0],pro=pe[1],cityName=city(day,slot),goal=c[2],issue=c[3],alt=c[4],fact=c[5],result=c[6],g=grammarCue(p,name,pro,c);let s='';
  if(slot%4===0)s='— Bonjour, je vous appelle parce que je dois '+goal+' à '+cityName+'. — D’accord, qu’est-ce qui pose problème ? — '+cap(issue)+'. Je préfère vérifier avant de changer tout mon programme. — Dans ce cas, vous pouvez '+alt+'. — Est-ce que cette solution est vraiment plus pratique ? — '+cap(fact)+'. '+g+' — Très bien, je vais comparer une dernière fois et je vous confirme ma décision cet après-midi. — D’accord. '+cap(result)+'.';
@@ -109,24 +133,49 @@ function listeningScript(p,c,day,slot){const pe=person(day,slot+2),name=pe[0],pr
  if(day>=11)s+=' Avant de conclure, le locuteur reformule la contrainte principale et vérifie que la prochaine étape reste réaliste.';
  if(day>=31)s+=' Le locuteur précise enfin que plusieurs personnes n’ont pas les mêmes priorités; il distingue donc les faits vérifiés de ce qui relève d’une préférence. Il recommande aussi de reformuler la décision finale pour vérifier qu’elle répond bien au problème de départ.';
  return s}
-function makeListening(old,p,day,slot){const c=pickCase(p,day,slot),script=listeningScript(p,c,day,slot),qs=[
- mc(old,1,'Pourquoi ce document sonore a-t-il été enregistré ?','Pour comprendre une difficulté concrète et décider comment agir.','Pour annoncer que toute démarche est impossible.','Pour raconter un souvenir sans conséquence pratique.','La situation générale apparaît dès le début : il faut résoudre un problème réel.',day+slot+3),
- mc(old,2,'Quelle information doit surtout être prise en compte ?','La contrainte principale et le détail qui modifie la comparaison entre les options.','Un changement de prix qui n’est jamais évoqué.','Une fermeture définitive de tous les services.','La compréhension repose sur deux informations liées, pas sur un mot isolé.',day+slot+9),
- mc(old,3,'Quelle attitude adopte finalement le locuteur ?','Il vérifie les informations puis choisit l’option la plus adaptée.','Il refuse toute autre possibilité sans écouter les explications.','Il choisit au hasard pour gagner du temps.','La fin du document montre une décision fondée sur la vérification et la comparaison.',day+slot+15)
+function makeListening(old,p,day,slot,generation){const c=pickCase(p,day,slot,generation),script=listeningScript(p,c,day,slot),issue=cap(c[3])+'.',solution=cap(c[4])+'.',detail=cap(c[5])+'.',result=cap(c[6])+'.',style=slot%4;
+ const q1=[
+  ['Pourquoi la personne appelle-t-elle ?','Parce qu’une difficulté l’oblige à revoir son organisation avant de confirmer.','Parce que tout est déjà réglé et qu’aucune décision n’est nécessaire.','Parce qu’elle veut parler d’un sujet sans rapport avec la situation.'],
+  ['Quel est le problème au début de la conversation ?',issue,'Le service a fermé définitivement.','La personne a déjà choisi sans aucune hésitation.'],
+  ['Quel est le sujet principal de cette annonce ?',issue,'Une promotion commerciale sans rapport avec la situation.','Un événement ancien qui n’a aucune conséquence aujourd’hui.'],
+  ['Pourquoi ce groupe discute-t-il de la situation ?',issue,'Parce qu’il veut supprimer toutes les options possibles.','Parce qu’aucune contrainte concrète n’a été identifiée.']
+ ][style];
+ const q2=[
+  ['Quelle possibilité est proposée ?',solution,'Abandonner la démarche sans explication.','Attendre plusieurs mois sans vérifier aucune information.'],
+  ['Quelle solution l’interlocuteur suggère-t-il ?',solution,'Conserver forcément le premier plan.','Décider immédiatement sans tenir compte du détail donné ensuite.'],
+  ['Que conseille-t-on aux personnes concernées ?',solution,'Ignorer les horaires et les conditions.','Se déplacer avant même de vérifier l’information.'],
+  ['Quelle option est mise sur la table pendant la discussion ?',solution,'Ne rien changer même si le problème persiste.','Reporter automatiquement toute décision à l’année suivante.']
+ ][style];
+ const q3=day<19?[
+  ['Pourquoi cette solution peut-elle fonctionner ?',detail,'Parce que toutes les contraintes ont disparu.','Parce que le locuteur ne vérifie aucun détail.'],
+  ['Pourquoi la personne accepte-t-elle de comparer encore ?',detail,'Parce qu’elle veut choisir au hasard.','Parce que la discussion n’a apporté aucune information utile.'],
+  ['Quel détail faut-il vérifier avant d’agir ?',detail,'Un prix promotionnel qui n’est pas mentionné.','Une fermeture définitive qui n’est jamais annoncée.'],
+  ['Sur quoi repose la décision finale ?',result,'Sur le refus d’écouter les autres possibilités.','Sur une préférence sans lien avec le problème initial.']
+ ][style]:[
+  ['Quelle attitude adopte finalement le locuteur ?',result,'Il refuse de distinguer les faits des préférences.','Il choisit uniquement pour aller plus vite.'],
+  ['Que montre la fin de l’échange ?',result,'La personne considère tous les détails comme inutiles.','La personne refuse toute solution qui demande un compromis.'],
+  ['Pourquoi le conseil final est-il prudent ?',result,'Parce qu’il demande de décider avant d’avoir les informations.','Parce qu’il suppose que toutes les situations sont identiques.'],
+  ['Quelle conclusion le groupe retient-il ?',result,'Il faut choisir sans vérifier les conséquences.','La première idée doit toujours être conservée.']
+ ][style];
+ const qs=[
+  mc(old,1,q1[0],q1[1],q1[2],q1[3],'Comme au DELF B1, la première question vérifie d’abord la compréhension générale.',day+slot+3+(generation||0)),
+  mc(old,2,q2[0],q2[1],q2[2],q2[3],'La solution est formulée ou reformulée au milieu du document.',day+slot+9+(generation||0)),
+  mc(old,3,q3[0],q3[1],q3[2],q3[3],'La réponse dépend de la fin du document et de la relation entre contrainte, détail et décision.',day+slot+15+(generation||0))
  ];return{...old,title:[c[0],'Conseil pratique : '+c[0].toLowerCase(),'Témoignage : '+c[0].toLowerCase(),'Discussion : '+c[0].toLowerCase()][slot%4],script,qs,quality189:{route:ROUTE,genre:['appel','conversation','annonce','réunion'][slot%4],day}}}
 function visibleText(x,t){return [x.title,t==='reading'?x.text:x.script,...((x.qs||[]).flatMap(q=>[q[0],...(q[1]||[])]))].join(' ')}
-const before=evidence(),stats={rewritten:{reading:0,listening:0},protected:{reading:0,listening:0},issues:[]};
+const before=evidence(),stats={rewritten:{reading:0,listening:0},protected:{reading:0,listening:0},issues:[]},fingerprints={reading:new Map(),listening:new Map()};
 for(const t of ['reading','listening']){
  for(const x of bank(t)){
   const z=parse(x);if(!z||z.type!==t||z.day<5||z.day>50)continue;
   if(locked(t,z.day,z.slot,x.id)){stats.protected[t]++;continue}
-  const p=plan(z.day),fresh=t==='reading'?makeReading(x,p,z.day,z.slot):makeListening(x,p,z.day,z.slot);
+  const p=plan(z.day),fresh=t==='reading'?makeReading(x,p,z.day,z.slot,z.generation):makeListening(x,p,z.day,z.slot,z.generation);
   Object.assign(x,fresh);stats.rewritten[t]++;
   const v=visibleText(x,t);
   if(/Information\s*·|Message\s*·|Le dossier porte la référence|référence\s+\d{3}\b|traceId|sourceSeed|contentId|slot\s*\d|r(?:177|181)-d\d{2}-s\d{2}/i.test(v))stats.issues.push({id:x.id,reason:'developer-or-synthetic-marker'});
   const plain=String(t==='reading'?x.text:x.script).replace(/<[^>]+>/g,' ').trim(),words=plain.split(/\s+/).filter(Boolean).length,min=z.day<=10?90:z.day<=30?120:150;
   if(words<min)stats.issues.push({id:x.id,reason:'too-short',words,min});
   if(!Array.isArray(x.qs)||x.qs.length!==3)stats.issues.push({id:x.id,reason:'question-count'});
+  const fp=String(t==='reading'?x.text:x.script).toLowerCase().replace(/\s+/g,' ').trim();if(fingerprints[t].has(fp))stats.issues.push({id:x.id,reason:'duplicate-content',other:fingerprints[t].get(fp)});else fingerprints[t].set(fp,x.id);
  }
 }
 if(before!==evidence())throw new Error('V1.8.14 input quality changed learning evidence');
