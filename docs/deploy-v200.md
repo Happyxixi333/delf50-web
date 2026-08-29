@@ -47,16 +47,16 @@ git push origin main
 ```bash
 # 1. 版本已更新
 curl -s https://delf50-mvp.vercel.app/release-meta.js | grep -E "app:|content:|cacheKey:"
-#    期望 app:'1.9.0'  content:'1.9.0'  cacheKey:'v200-corpus-authored'
+#    期望 app:'1.9.1'  content:'1.9.1'  cacheKey:'v200-corpus-authored-full50'
 
 # 2. bundle 正常，且来自部署本体而不是 GitHub
-curl -sI "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored" \
+curl -sI "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-full50-full50" \
   | grep -iE "x-delf50-(app|build|bundle-origin|student-content)"
 #    期望 x-delf50-bundle-origin: deployment-local-v1
 
 # 3. 新材料在，旧生成层已下线
-curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored" | grep -c "__DELF50_CORPUS_V200"   # ≥1
-curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored" | grep -c "authentic-diversity-v3" # 0
+curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-full50-full50" | grep -c "__DELF50_CORPUS_V200"   # ≥1
+curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored-full50-full50" | grep -c "authentic-diversity-v3" # 0
 ```
 
 打开网站后，在「进度」页应看到新增的「学习材料校验」卡片，状态为「✓ 全部通过」。
@@ -75,6 +75,12 @@ curl -s "https://delf50-mvp.vercel.app/api/source?i=12&v=v200-corpus-authored" |
 | `content/corpus-v200-d04-d09.js` | 新增 | Day 4 阅读 4 篇 + 听力 s01、Day 8–9 各 8 篇（21 篇） |
 | `content/corpus-v200-d10-d14.js` | 新增 | Day 10–14 阅读听力各 4 篇（40 篇） |
 | `content/corpus-v200-d15-d20.js` | 新增 | Day 15–20 阅读听力各 4 篇（48 篇） |
+| `content/corpus-v200-d21-d25.js` | 新增 | Day 21–25（40 篇） |
+| `content/corpus-v200-d26-d30.js` | 新增 | Day 26–30（40 篇） |
+| `content/corpus-v200-d31-d35.js` | 新增 | Day 31–35（40 篇） |
+| `content/corpus-v200-d36-d40.js` | 新增 | Day 36–40（40 篇） |
+| `content/corpus-v200-d41-d45.js` | 新增 | Day 41–45（40 篇） |
+| `content/corpus-v200-d46-d50.js` | 新增 | Day 46–50（40 篇） |
 | `v200-corpus-materials.js` | 新增 | 装载层：阻断式校验、身份锁定、来源显示、审计上屏 |
 | `v176-day2-reading-repair.js` | 改为非破坏性 | 不再删除答题记录与回退计数器 |
 | `release-meta.js` | 版本 1.9.0 | `cacheKey` 改为 `v200-corpus-authored`，击穿 CDN 缓存 |
