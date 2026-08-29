@@ -2,6 +2,14 @@
 (function(){
 const APP182='1.8.12',CONTENT182='1.8.5',ROUTE182='roadmap-aligned-grammar-v2';
 const RANK182={light:0,standard:1,high:2};
+function firstFourEvidence182(){
+ const daily={};for(let d=1;d<=4;d++)daily[String(d)]=S.daily&&S.daily[String(d)]?JSON.parse(JSON.stringify(S.daily[String(d)])):null;
+ const taskDone={};for(const [k,v] of Object.entries(S.taskDone||{})){const d=Number(String(k).split(':')[0]);if(d>=1&&d<=4)taskDone[k]=v}
+ const prodDone={};for(const [k,v] of Object.entries(S.prodDone||{})){const d=Number(String(k).split(':')[0]);if(d>=1&&d<=4)prodDone[k]=v}
+ const completed={};for(const [id,r] of Object.entries(S.contentProgress172&&S.contentProgress172.completed&&S.contentProgress172.completed.grammar||{})){if(r&&Number(r.day)>=1&&Number(r.day)<=4)completed[id]=JSON.parse(JSON.stringify(r))}
+ return JSON.stringify({daily,taskDone,prodDone,completed,skill:S.grammar&&S.grammar.skill||{},attempts:S.grammar&&S.grammar.attempts||0,correct:S.grammar&&S.grammar.correct||0})
+}
+const FIRST_FOUR_EVIDENCE_182=firstFourEvidence182();
 function esc182(x){return String(x==null?'':x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function persist182(){try{if(typeof KEY!=='undefined')localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function intensity182(day=S.selectedDay){const p=S.dayPlans172&&S.dayPlans172[String(day)];return p&&p.currentIntensity||((Number(day)===Number(S.selectedDay)&&S.intensity)||'standard')}
@@ -65,5 +73,5 @@ const todayBase182=today;
 today=function(){let h=todayBase182(),q=quota182(),label=LEVELS[intensity182()]&&LEVELS[intensity182()].label||intensity182(),dynamic=`<div class="card demandtoday182"><div class="row wrap"><div><b>当前学习时长对应题量</b><div class="muted">${esc182(label)} 只分配当天需要完成的任务；题库剩余内容继续作为后续库存。</div></div><span class="pill blue">按需分配</span></div><div class="savefacts171"><span>语法 ${q.grammar}题</span><span>听力 ${q.listening}组</span><span>阅读 ${q.reading}篇</span><span>写作 ${q.writing}项</span><span>口语 ${q.speaking}轮</span><span>应用 ${q.application}项</span></div><div class="muted" style="margin-top:8px">语法内部：${esc182(distText182())}。提高学习时长时增加题量；降低时长时不删除已完成记录。</div></div>`;h=h.replace(/<div class="card"><b>强度如何影响题量<\/b>[\s\S]*?<\/div><\/div>(?=<div class="card"><b>今天的新旧比例)/,dynamic);if(!h.includes('demandtoday182'))h=dynamic+h;return h};
 function inject182(){if(document.getElementById('v182-style'))return;const st=document.createElement('style');st.id='v182-style';st.textContent=`.demand182,.demandtoday182{border-color:#cfe3dc}.demandtoday182 .savefacts171{margin-top:10px}.demandtoday182 .savefacts171 span{white-space:nowrap}.node[data-gplan-node182]{cursor:pointer}.node[data-gplan-node182]:hover{background:#f4f9f7}`;document.head.appendChild(st)}
 inject182();
-ensurePlan182(S.selectedDay);S.version=APP182;if(S.meta172){S.meta172.appVersion=APP182;S.meta172.contentVersion=CONTENT182;S.meta172.demandAllocation=ROUTE182;S.meta172.demandAllocationUpdatedAt=new Date().toISOString()}persist182();globalThis.__delfV182={version:APP182,contentVersion:CONTENT182,route:ROUTE182,firstDay:FIRST_DAY_182,getPlan:(day=S.selectedDay)=>JSON.parse(JSON.stringify(ensurePlan182(day))),allocation:(day=S.selectedDay)=>allocation182(day,grammarTarget182(day))};render();
+ensurePlan182(S.selectedDay);S.version=APP182;if(S.meta172){S.meta172.appVersion=APP182;S.meta172.contentVersion=CONTENT182;S.meta172.demandAllocation=ROUTE182;S.meta172.demandAllocationUpdatedAt=new Date().toISOString()}if(firstFourEvidence182()!==FIRST_FOUR_EVIDENCE_182)throw new Error('V1.8.12 first-four-days grammar evidence invariant failed');persist182();globalThis.__delfV182={version:APP182,contentVersion:CONTENT182,route:ROUTE182,firstDay:FIRST_DAY_182,getPlan:(day=S.selectedDay)=>JSON.parse(JSON.stringify(ensurePlan182(day))),allocation:(day=S.selectedDay)=>allocation182(day,grammarTarget182(day))};render();
 })();
