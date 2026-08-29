@@ -18,21 +18,21 @@ function grammarTarget182(day=S.selectedDay){return Math.max(1,Number(quota182(d
 function done182(day=S.selectedDay){return Math.max(0,Number(S.daily&&S.daily[String(day)]&&S.daily[String(day)].grammar||0))}
 const DAY_GRAMMAR_IDS_182={
  5:['pc','present'],6:['pc','adjectives'],7:['imparfait','pc'],8:['pcimp','imparfait','pc'],9:['future','present'],10:['present','pc','imparfait','future'],
- 11:['codcoi','questions'],12:['yen','prepositionalVerbs','codcoi'],13:['relatives','relativesB1'],14:['comparison','adjectives'],15:['conditionnel','hypothesis'],
+ 11:['codcoi','questions'],12:['yen','prepositionalVerbs','codcoi'],13:['relatives','relativesB1'],14:['comparison','superlative','adjectives'],15:['conditionnel','hypothesis'],
  16:['connectors','logicalB1'],17:['logicalB1','connectors','opinion'],18:['pcimp','conditionnel','relatives','connectors'],
  19:['plusqueparfait','passeRecent','pcimp'],20:['conditionnel','doublePronouns','questions'],21:['hypothesis','conditionnel','logicalB1'],
  22:['negationB1','doublePronouns','codcoi'],23:['reported','plusqueparfait','relativesB1'],24:['comparison','indefinitePronouns','logicalB1'],
- 25:['subjonctif','opinion','connectors'],26:['subjonctif','logicalB1','opinion'],27:['passive','nominalisation','reported'],
- 28:['gerondif','relativesB1','emphasis'],29:['prepositionalVerbs','reported','yen'],30:['ppagreement','doublePronouns','logicalB1'],
+ 25:['subjonctif','opinion','connectors'],26:['subjonctif','logicalB1','emphasis'],27:['passive','nominalisation','reported'],
+ 28:['gerondif','relativesB1','adverbsB1'],29:['prepositionalVerbs','reported','yen'],30:['ppagreement','doublePronouns','logicalB1'],
  31:['reported','negationB1','logicalB1'],32:['reported','logicalB1','indefinitePronouns'],33:['prepositions','negationB1','relativesB1'],
  34:['opinion','logicalB1','emphasis'],35:['nominalisation','passive','subjonctif'],36:['opinion','subjonctif','logicalB1'],
  37:['present','pcimp','future'],38:['conditionnel','hypothesis','doublePronouns'],39:['opinion','logicalB1','emphasis'],40:['plusqueparfait','subjonctif','doublePronouns']
 };
 const FIRST_DAY_182={
  present:1,articles:2,adjectives:2,questions:2,negation:3,modals:3,prepositions:4,pc:5,imparfait:7,pcimp:8,future:9,codcoi:11,
- yen:12,prepositionalVerbs:12,relatives:13,relativesB1:13,comparison:14,conditionnel:15,hypothesis:15,connectors:16,logicalB1:16,opinion:17,
+ yen:12,prepositionalVerbs:12,relatives:13,relativesB1:13,comparison:14,superlative:14,conditionnel:15,hypothesis:15,connectors:16,logicalB1:16,opinion:17,
  plusqueparfait:19,passeRecent:19,doublePronouns:20,negationB1:22,reported:23,indefinitePronouns:24,subjonctif:25,passive:27,nominalisation:27,
- gerondif:28,emphasis:28,ppagreement:30
+ gerondif:28,adverbsB1:28,emphasis:26,ppagreement:30
 };
 function nodeIndex182(id){return GRAMMAR.findIndex(g=>g&&g.id===id)}
 function weakestNodes182(limit=3){const ranked=GRAMMAR.map((g,i)=>{const z=S.grammar&&S.grammar.skill&&S.grammar.skill[g.id]||{a:0,c:0};return{i,a:Number(z.a||0),score:z.a?Number(z.c||0)/Number(z.a):.5,day:FIRST_DAY_182[g.id]||99}}).filter(x=>x.day<=30).sort((a,b)=>a.score-b.score||b.a-a.a||a.day-b.day);return ranked.slice(0,limit).map(x=>x.i)}
