@@ -30,4 +30,44 @@ const GRAMMAR=[
  {id:'connectors',name:'Connecteurs',level:'B1-',use:'写作与口语组织结构',ex:['d’abord','cependant','donc','par exemple'],qs:[['Quel mot exprime une conséquence ?',['donc','cependant','d’abord'],0,'donc 表示结果/后果。'],['Quel mot introduit une opposition ?',['cependant','donc','par exemple'],0,'cependant 表示转折。'],['Quel mot introduit un exemple ?',['par exemple','pourtant que','ensuite de'],0,'par exemple 用于举例。']]},
  {id:'comparison',name:'Comparer',level:'B1-',use:'比较方案、优缺点与选择',ex:['plus… que','moins… que','aussi… que'],qs:[['Le train est ___ rapide que le bus.',['plus','très','beaucoup'],0,'比较级：plus + adjectif + que。'],['Ce logement est ___ cher que l’autre.',['moins','peu de','moins de très'],0,'moins + adjectif + que。'],['Ils sont ___ motivés que nous.',['aussi','autant de','plus de'],0,'aussi + adjectif + que。']]},
  {id:'opinion',name:'Opinion & argumentation',level:'B1',use:'观点表达、理由、例子和结论',ex:['À mon avis…','D’une part…','Pour conclure…'],qs:[['Pour exprimer votre opinion…',['À mon avis,…','Il y a trois ans,…','À demain,…'],0,'À mon avis 引出个人观点。'],['Pour ajouter un exemple…',['Par exemple,…','Cependant,…','En conclusion,…'],0,'Par exemple 用于举例。'],['Pour conclure…',['Pour conclure,…','D’abord,…','À cause de…'],0,'Pour conclure 用于结束观点。']]}
-];
+,
+ {id:'passeRecent',name:'Passé récent',level:'B1-',use:'表达刚刚发生的动作，并与其他过去时区分',ex:['Je viens de finir.','Elle vient d’arriver.'],qs:[
+  ['Je ___ finir mon travail.',['viens de','viens','ai de'],0,'Passé récent：venir au présent + de + infinitif。'],
+  ['Ils ___ partir quand tu as appelé.',['venaient de','ont venu de','étaient de'],0,'在过去参照点表达“刚刚发生”可用 venir à l’imparfait + de + infinitif。'],
+  ['Quelle phrase signifie « 她刚刚到 » ?',['Elle vient d’arriver.','Elle va arriver.','Elle arrivait souvent.'],0,'venir de + infinitif 表示刚刚发生。'],
+  ['Nous venons ___ recevoir la confirmation.',['de','à','pour'],0,'固定结构 venir de + infinitif。'],
+  ['Je viens de manger : l’action est…',['très récente et terminée','une habitude passée','un projet futur'],0,'Passé récent 强调刚刚完成。'],
+  ['À 18 h, il venait de quitter le bureau quand… : « venait de quitter » situe…',['une action immédiatement antérieure','une action future','une habitude générale'],0,'Imparfait de venir + de situe une action juste avant un repère passé.']
+ ]},
+ {id:'plusqueparfait',name:'Plus-que-parfait',level:'B1',use:'表达“过去中的更早过去”，组织清晰时间线',ex:['J’avais déjà réservé.','Elle était partie avant mon arrivée.'],qs:[
+  ['Quand je suis arrivé, le train ___.',['était déjà parti','est déjà parti demain','partait toujours demain'],0,'先发生的过去动作可用 plus-que-parfait。'],
+  ['Elle ___ son billet avant de recevoir le message.',['avait acheté','a acheté après','achètera'],0,'Plus-que-parfait：avoir/être à l’imparfait + participe passé。'],
+  ['Nous étions fatigués parce que nous ___ toute la nuit.',['avions travaillé','travaillons','travaillerons'],0,'原因发生在另一个过去状态之前。'],
+  ['Avec être : « Elles ___ avant midi. »',['étaient arrivées','avaient arrivé','étaient arriver'],0,'Plus-que-parfait avec être，并保持基本配合。'],
+  ['Quelle relation exprime « J’avais déjà réservé quand il a appelé » ?',['La réservation est antérieure à l’appel.','L’appel est antérieur à la réservation.','Les deux actions sont futures.'],0,'Plus-que-parfait 标记更早的过去。'],
+  ['Forme correcte :',['vous aviez compris','vous avez comprenait','vous étiez comprendre'],0,'avoir à l’imparfait + participe passé。']
+ ]},
+ {id:'hypothesis',name:'Hypothèse avec si',level:'B1',use:'提出现实条件、假设、建议与结果',ex:['Si j’ai le temps, je viendrai.','Si j’avais le temps, je viendrais.'],qs:[
+  ['Si j’ai le temps demain, je ___.',['viendrai','viendrais hier','venais'],0,'现实/可能条件：si + présent，主句可用 futur simple。'],
+  ['Si j’___ plus de temps, je voyagerais davantage.',['avais','aurai','ai eu'],0,'假设：si + imparfait + conditionnel présent。'],
+  ['Si nous habitions plus près, nous ___ à pied.',['irions','allons hier','irons toujours hier'],0,'假设结果使用 conditionnel présent。'],
+  ['Après « si » dans une hypothèse, on écrit :',['Si j’étais…','Si je serais…','Si j’aurais…'],0,'标准结构中 si 从句不用 conditionnel。'],
+  ['Quelle phrase propose une solution hypothétique ?',['Si on partait plus tôt, on éviterait le trafic.','Si on partira, on éviterait.','Si on partirait, on évite.'],0,'si + imparfait / conditionnel présent。'],
+  ['Si vous pouvez venir, nous ___ la réunion à 15 h.',['commencerons','commencerions hier','commencions demain toujours'],0,'可能条件可连接 futur simple。']
+ ]},
+ {id:'subjonctif',name:'Subjonctif essentiel',level:'B1',use:'表达必要、愿望、目的；掌握高频触发结构',ex:['Il faut que vous veniez.','Je vous écris pour que vous puissiez confirmer.'],qs:[
+  ['Il faut que tu ___ ce document.',['envoies','enverras','envoyais toujours'],0,'Il faut que + subjonctif。'],
+  ['Je vous appelle pour que vous ___ la réservation.',['puissiez confirmer','pouvez confirmer','pourrez confirmer'],0,'pour que + subjonctif 表达目的。'],
+  ['Je veux que nous ___ une solution.',['trouvions','trouverons','trouvons toujours'],0,'vouloir que + subjonctif。'],
+  ['Il est important que vous ___ à l’heure.',['soyez','serez','êtes toujours'],0,'高频必要/判断结构 + subjonctif。'],
+  ['Quelle phrase exprime le but ?',['Je répète pour que tout le monde comprenne.','Je répète parce que tout le monde comprend.','Je répète donc tout le monde comprend.'],0,'pour que + subjonctif 表达目的。'],
+  ['Forme correcte de « avoir » au subjonctif avec nous :',['que nous ayons','que nous avons','que nous aurons'],0,'avoir：que j’aie, que nous ayons。']
+ ]},
+ {id:'reported',name:'Discours rapporté au présent',level:'B1',use:'转述别人说的话、问题和要求',ex:['Elle dit qu’elle arrive à 18 h.','Il demande si le service est ouvert.'],qs:[
+  ['Paul dit : « Je suis prêt. » → Paul dit ___.',['qu’il est prêt','qu’il était toujours prêt hier','si il est prêt'],0,'现在时引述：dire que + proposition。'],
+  ['Elle demande : « Le service est ouvert ? » → Elle demande ___.',['si le service est ouvert','que le service est ouvert ?','où le service est ouvert si'],0,'一般疑问句转述常用 demander si。'],
+  ['« Où habitez-vous ? » → Il demande ___.',['où vous habitez','où habitez-vous','si où vous habitez'],0,'特殊疑问词保留，语序回到陈述句。'],
+  ['Le conseiller explique : « Vous devez confirmer. » → Il explique ___.',['que vous devez confirmer','si vous devez confirmer ?','que devez-vous confirmer'],0,'expliquer que + proposition。'],
+  ['Quelle phrase rapporte une information ?',['Elle dit qu’elle arrivera demain.','Elle demande arrivera-t-elle demain.','Elle dit si demain ?'],0,'dire que 用于转述陈述。'],
+  ['« Est-ce que vous avez reçu mon mail ? » → Je demande ___.',['si vous avez reçu mon mail','que vous avez reçu mon mail ?','est-ce que vous avez reçu mon mail'],0,'转述是/否问题：demander si。']
+ ]}];
