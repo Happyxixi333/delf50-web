@@ -135,6 +135,50 @@ function jaccard(a, b){
   return n / (ka.length + kb.length - n);
 }
 
+/* ---------- 选项位置随机化 ----------
+ * 手写语料里正确项一律写在第一位，方便撰写和校对。若原样装载，学习者只要每题
+ * 都点第一个选项就能拿满分，题目变成纯位置匹配，和理解无关。
+ *
+ * 随机源不能是渲染期的 Math.random()：S.reading.answers 存的是选项下标，
+ * 每次渲染重排会让学习者昨天的答题记录指向另一个选项，正确率与错题本全部错乱。
+ * 因此这里做一次性洗牌，随机源是题目内容本身的哈希 —— 位置分布均匀且不可预测
+ * （没有 %3 那样的可见周期），但同一道题在任何设备、任何会话、任何一次重新部署
+ * 下都得到同一个排列。种子只取题干与正确项原文，不含 day/slot/id，所以同一条
+ * 材料的 177 / 181 两代 id 必然洗出相同结果，语料换文件或换日期也不会漂移。
+ */
+function seedOf(str){                       /* FNV-1a 32 位 */
+  var h = 0x811c9dc5, s = String(str);
+  for (var i = 0; i < s.length; i++){
+    h ^= s.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h >>> 0;
+}
+function rngOf(seed){                       /* xorshift32 */
+  var x = (seed >>> 0) || 0x9e3779b9;
+  return function(){
+    x ^= (x << 13); x >>>= 0;
+    x ^= (x >>> 17);
+    x ^= (x << 5);  x >>>= 0;
+    return x / 4294967296;
+  };
+}
+/* 返回洗牌后的 [选项数组, 正确项新下标]；任何异常情况下原样返回，绝不丢失正确项。 */
+function shuffled(stem, options, key){
+  if (!Array.isArray(options) || !(key >= 0 && key < options.length)) return [options, key];
+  var correct = options[key], out = options.slice();
+  var rnd = rngOf(seedOf(norm(stem) + '|' + norm(correct)));
+  for (var i = out.length - 1; i > 0; i--){
+    var j = Math.floor(rnd() * (i + 1));
+    if (!(j >= 0)) j = 0;
+    if (j > i) j = i;
+    var t = out[i]; out[i] = out[j]; out[j] = t;
+  }
+  var at = out.indexOf(correct);
+  if (at < 0) return [options, key];         /* 理论上不可达：选项已校验互不相同 */
+  return [out, at];
+}
+
 function validate(entry, seen){
   var problems = [];
   var t = TYPE[entry.t];
@@ -182,7 +226,7 @@ var audit = {
   route: ROUTE, app: REL.app, content: REL.content,
   corpusSize: CORPUS.length,
   applied: [], protectedItems: [], missing: [], rejected: [], similar: [],
-  coverage: {}, status: 'pass'
+  coverage: {}, keyPositions: {}, answerBalance: null, balanced: 0, balanceSkipped: 0, status: 'pass'
 };
 
 var before = evidenceSnapshot();
@@ -240,7 +284,9 @@ function applyTo(entry, t, id){
 
   if (Array.isArray(entry.qs)){
     patch.qs = entry.qs.map(function(q, i){
-      return [q[0], q[1].slice(), q[2], q[3] || '', {
+      var mix = shuffled(q[0], q[1], q[2]);
+      audit.keyPositions[mix[1]] = (audit.keyPositions[mix[1]] || 0) + 1;
+      return [q[0], mix[0].slice(), mix[1], q[3] || '', {
         kind: 'original', author: 'DELF50', route: ROUTE, questionIndex: i + 1
       }];
     });
@@ -286,7 +332,74 @@ if (before !== evidenceSnapshot()){
   return;
 }
 
-audit.status = (audit.rejected.length || audit.similar.length || audit.missing.length) ? 'warn' : 'pass';
+/* ---------- 语料未覆盖的日期（Day 1–3 等）同样要打散正确项位置 ----------
+ * 语料只覆盖 Day 4–50。Day 1–3 由更早的生成层产出，实测 76% 的正确项落在第一位，
+ * 新用户照样能靠「一律点第一个」拿到大部分分数。缺陷是同一个，所以这里对题库里
+ * 语料没动过、且学习者没接触过的条目补一次同样的洗牌。
+ *
+ * 判据必须与日期无关：Day 1–2 的旧条目 id 形如 'r1'，同一条目可能出现在多天，
+ * 所以这里扫描全部证据键，只要任何一天出现过就视为已接触，保持原样。
+ */
+function touchedAnywhere(t, id){
+  var box = (t === 'reading' ? S.reading : S.listening);
+  var a = (box && box.answers) || {}, tail = ':' + String(id) + ':';
+  for (var k in a) if (Object.prototype.hasOwnProperty.call(a, k) && k.indexOf(tail) > 0) return true;
+  if (completedEvidence(t, id)) return true;
+  var m = S.replacements177 && S.replacements177[t];
+  for (var j in (m || {})){
+    if (!Object.prototype.hasOwnProperty.call(m, j)) continue;
+    var r = m[j];
+    if (r && (String(r.newId || '') === String(id) || String(r.oldId || '') === String(id))) return true;
+  }
+  return false;
+}
+
+(function balanceRest(){
+  var done = {};
+  audit.applied.forEach(function(id){ done[id] = 1; });
+  ['reading', 'listening'].forEach(function(t){
+    var b = bank(t);
+    if (!Array.isArray(b)) return;
+    b.forEach(function(item){
+      if (!item || !Array.isArray(item.qs)) return;
+      if (done[String(item.id)]) return;                 /* 语料已处理，别洗第二次 */
+      if (touchedAnywhere(t, item.id)) { audit.balanceSkipped++; return; }
+      item.qs = item.qs.map(function(q){
+        if (!Array.isArray(q) || !Array.isArray(q[1])) return q;
+        var mix = shuffled(q[0], q[1], q[2]);
+        audit.keyPositions[mix[1]] = (audit.keyPositions[mix[1]] || 0) + 1;
+        var out = q.slice();
+        out[1] = mix[0];
+        out[2] = mix[1];
+        return out;
+      });
+      audit.balanced++;
+    });
+  });
+})();
+
+/* 正确项位置必须接近均匀。偏斜意味着题目可以靠固定位置解出来，与理解无关，
+   所以它和「重复」「泄漏」一样是内容质量的一等指标，进审计并对外可见。 */
+(function(){
+  var counts = audit.keyPositions, slots = Object.keys(counts);
+  var total = slots.reduce(function(n, k){ return n + counts[k]; }, 0);
+  if (!total) return;
+  var expected = total / Math.max(slots.length, 1), worst = 0;
+  slots.forEach(function(k){
+    var dev = Math.abs(counts[k] - expected) / expected;
+    if (dev > worst) worst = dev;
+  });
+  audit.answerBalance = {
+    total: total,
+    positions: JSON.parse(JSON.stringify(counts)),
+    maxShare: Number((Math.max.apply(null, slots.map(function(k){ return counts[k]; })) / total).toFixed(4)),
+    maxDeviation: Number(worst.toFixed(4)),
+    ok: worst <= 0.20
+  };
+})();
+
+audit.status = (audit.rejected.length || audit.similar.length || audit.missing.length
+  || (audit.answerBalance && !audit.answerBalance.ok)) ? 'warn' : 'pass';
 
 /* ---------- 显示层清洗（承接原 v199 行为） ---------- */
 function clean(h){
@@ -308,8 +421,8 @@ function sourceBlock200(item){
   var ref = item && item.sourceRef;
   if (!ref || !ref.label) return '';
   var link = ref.url ? '<a href="' + esc200(ref.url) + '" target="_blank" rel="noopener">' + esc200(ref.label) + '</a>' : esc200(ref.label);
-  return '<div class="card"><div class="source"><b>来源参照 / Source de référence</b><br>' + link
-    + '<br>本篇课文按该来源的体裁、语域与事实改写，供学习使用；不是原文转载。点击可阅读真实原文。</div></div>';
+  return '<div class="card"><div class="source"><b>校准参照 / Référence de calibrage</b><br>' + link
+    + '<br>本篇课文为本课程原创撰写，按该机构公开材料的体裁、语域与事实口径校准；不转载、不改写其任何具体文章。链接指向该机构的公开站点，可作为同类真实材料的延伸阅读。</div></div>';
 }
 
 /* L'audio de l'application est une synthèse vocale : on indique où écouter du vrai. */
@@ -343,6 +456,12 @@ if (typeof globalThis.progressPage === 'function'){
       '因你已作答而冻结、保持原样：<b>' + audit.protectedItems.length + '</b> 篇',
       '校验未通过而未装载：<b>' + audit.rejected.length + '</b> 篇 · 相似度超阈值：<b>' + audit.similar.length + '</b> 对'
     ];
+    if (audit.answerBalance){
+      var b = audit.answerBalance, pos = Object.keys(b.positions).sort();
+      lines.push('正确答案位置分布：' + pos.map(function(k){
+        return '第' + (Number(k) + 1) + '项 ' + b.positions[k] + ' 题（' + (100 * b.positions[k] / b.total).toFixed(1) + '%）';
+      }).join(' · ') + (b.ok ? ' —— 分布均匀，无法靠固定位置作答' : ' —— <b>分布偏斜，请检查</b>'));
+    }
     if (audit.rejected.length){
       lines.push('未装载明细：' + audit.rejected.slice(0, 5).map(function(r){
         return 'D' + r.day + ' ' + r.type + ' s' + r.slot + '（' + r.problems.join('、') + '）';
@@ -351,7 +470,7 @@ if (typeof globalThis.progressPage === 'function'){
     return prevProgress200.apply(this, arguments)
       + '<div class="card"><h2>学习材料校验</h2><div class="callout ' + tone + '">'
       + '<b>' + (audit.status === 'pass' ? '✓ 全部通过' : '⚠ 有条目未装载，详见下方') + '</b><br>' + lines.join('<br>')
-      + '</div><div class="storage">每篇材料在装载前逐条校验：题干与选项完整、答案下标有效、选项互不相同、正文长度达标、同一天阅读与听力主题不重叠、正文不含开发端编号。不合格的条目不会写入题库。</div></div>';
+      + '</div><div class="storage">每篇材料在装载前逐条校验：题干与选项完整、答案下标有效、选项互不相同、正文长度达标、同一天阅读与听力主题不重叠、正文不含开发端编号。不合格的条目不会写入题库。选项顺序由题目内容的哈希一次性打乱，正确项均匀分布在各个位置；同一道题的排列在任何设备与任何一次更新后都保持一致，已保存的答题记录不会错位。</div></div>';
   };
 }
 

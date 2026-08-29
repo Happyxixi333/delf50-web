@@ -9,6 +9,11 @@
  *   5. 语法负载与 curriculum-v17 当日 focus 对齐（Day4 介词与时间；Day5 PC avoir；
  *      Day6 PC être + accord；Day7 imparfait）。
  *   6. 来源如实标注：kind='original'，calibration 说明按什么校准，不挂靠任何具体文章 URL。
+ *   7. 撰写约定：正确项一律写在选项数组第 0 位，便于撰写与校对。装载时由
+ *      v200-corpus-materials.js 按题目内容的哈希做一次性 Fisher–Yates 洗牌，
+ *      正确项均匀落在各个位置；同一道题的排列在任何设备与任何一次重新部署下都相同，
+ *      所以已保存的答题下标不会错位。**解析里不要引用选项位置**（「第二项」之类），
+ *      洗牌后会指错；要指某个选项时请引用它的原文。
  *
  * 覆盖范围（本批）：Day 4 听力 s02–s04；Day 5–7 阅读 s01–s04、听力 s01–s04。
  * 未覆盖的日期与模块由既有内容层保留，不受本文件影响。
@@ -16,10 +21,15 @@
  * 字段：t = r|l（阅读/听力），d = 日，s = 槽位（1 起，与 content id 中的 sNN 一致）
  * qs = [题干, [选项], 正确项下标, 中文解析]
  */
+/* Day 4–7 是日常生活类文书（站内广播、语音留言、朋友邮件、家庭对话）。这类文本没有
+   对应的机构出版物可挂靠，其真实校准依据是 DELF 样题所用的文书类型与语域清单，
+   因此统一标注 FEI，而不是硬套一个内容无关的机构链接。 */
+var FEI = {label:'France Éducation international · exemples de sujets DELF (A2 / B1)', url:'https://www.france-education-international.fr/diplome/delf-tout-public/niveau-b1/exemples-sujets'};
+
 globalThis.__DELF50_CORPUS_V200 = [
 
 /* ============================ Day 4 · 介词、时间、行程 ============================ */
-{t:'l',d:4,s:2,genre:'annonce en gare',domain:'transport',level:'A2',
+{t:'l',d:4,s:2,genre:'annonce en gare',domain:'transport',level:'A2',src:FEI,
  title:'Retard du TER et changement de voie',
  script:"Mesdames et messieurs, votre attention s'il vous plaît. Le TER numéro 8412 à destination de Rennes, prévu à 14 h 20, partira avec un retard d'environ vingt minutes. Ce train partira exceptionnellement voie 3, et non voie 1. Les voyageurs qui doivent prendre une correspondance à Saint-Brieuc sont invités à se présenter au guichet d'information, situé près de la sortie principale. Le guichet reste ouvert jusqu'à 19 heures. Nous vous remercions de votre compréhension.",
  qs:[
@@ -33,7 +43,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Aller au guichet d'information près de la sortie principale.","Attendre sur la voie 1 jusqu'à 19 heures.","Prendre un autre train vers Rennes."],0,
    "19 heures 是柜台关闭时间，不是等待要求。"]]},
 
-{t:'l',d:4,s:3,genre:'message vocal · service public',domain:'médiathèque',level:'A2',
+{t:'l',d:4,s:3,genre:'message vocal · service public',domain:'médiathèque',level:'A2',src:FEI,
  title:'Horaires d\'été et réservation',
  script:"Bonjour, ici la médiathèque des Trois-Ponts. Nous vous appelons au sujet de votre carte, valable depuis le 3 mars. Pendant tout le mois d'août, la médiathèque ouvre seulement l'après-midi, de 14 heures à 18 heures, sauf le dimanche. Le livre que vous avez réservé est arrivé ; nous le gardons pendant dix jours. Si vous ne pouvez pas passer avant le 20 août, rappelez-nous et nous prolongerons la réservation. Bonne journée.",
  qs:[
@@ -47,7 +57,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Rappeler la médiathèque.","Venir un dimanche après-midi.","Réserver un second livre avant le 20 août."],0,
    "留言明确给出唯一办法：rappelez-nous。"]]},
 
-{t:'l',d:4,s:4,genre:'dialogue au guichet',domain:'abonnement transport',level:'A2',
+{t:'l',d:4,s:4,genre:'dialogue au guichet',domain:'abonnement transport',level:'A2',src:FEI,
  title:'Abonnement de tramway et zones',
  script:"— Bonjour, je voudrais un abonnement pour le tramway.\n— Bien sûr. Vous habitez dans quelle zone ?\n— À Villeneuve, zone 2. J'y habite depuis septembre.\n— Alors l'abonnement mensuel coûte 38 euros pour les zones 1 et 2. Il est valable pendant trente jours à partir de la première utilisation, pas à partir de l'achat.\n— Et si je voyage une fois en zone 3 ?\n— Vous prenez un complément à 1,80 euro au distributeur, avant de monter.",
  qs:[
@@ -62,7 +72,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    "本题直接考 depuis + 时间点；trente jours 属于 pendant 结构。"]]},
 
 /* ============================ Day 5 · Passé composé avec avoir ============================ */
-{t:'r',d:5,s:1,genre:'courriel amical',domain:'déménagement',level:'A2',
+{t:'r',d:5,s:1,genre:'courriel amical',domain:'déménagement',level:'A2',src:FEI,
  title:'Enfin installée',
  text:"<b>Objet : enfin installée !</b><br><br>Salut Théo,<br><br>Je n'ai pas répondu plus tôt : samedi, j'ai déménagé. Nous avons commencé à huit heures et nous avons fini beaucoup plus tard que prévu. Le camion a eu un problème de portière, alors nous avons perdu presque deux heures. Heureusement, Sarah a apporté à manger et son frère a porté les meubles lourds avec moi.<br><br>J'ai déjà rangé la cuisine, mais je n'ai pas encore ouvert la moitié des cartons. J'ai gardé ton livre, ne t'inquiète pas.<br><br>Tu passes dimanche ?<br>Léna",
  qs:[
@@ -76,7 +86,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Le rangement d'une partie des cartons.","Le rangement de la cuisine.","La lecture du livre de Théo."],0,
    "对比 « J'ai déjà rangé la cuisine » 与 « je n'ai pas encore ouvert la moitié des cartons »。"]]},
 
-{t:'r',d:5,s:2,genre:'brève de presse locale',domain:'vie de quartier',level:'A2',
+{t:'r',d:5,s:2,genre:'brève de presse locale',domain:'vie de quartier',level:'A2',src:FEI,
  title:'Braderie : une fréquentation en hausse',
  text:"<b>Braderie : une fréquentation en hausse</b><br><br>La braderie du quartier Saint-Martin a fermé ses portes dimanche soir. Les organisateurs ont compté environ 4 000 visiteurs, contre 3 200 l'an dernier. Les quatre-vingts exposants ont surtout vendu des vêtements et des livres d'occasion.<br><br>La pluie du matin a ralenti le début de la journée, mais l'après-midi a été très animé. Le comité de quartier a annoncé que les bénéfices financeront deux ateliers de réparation de vélos. La prochaine édition aura lieu le premier dimanche de septembre.",
  qs:[
@@ -90,7 +100,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Elle a ralenti le début de la journée.","Elle a fait annuler l'après-midi.","Elle a fait baisser la fréquentation totale."],0,
    "文中说 l'après-midi a été très animé，且总人数上升。"]]},
 
-{t:'r',d:5,s:3,genre:'avis en ligne',domain:'loisirs',level:'A2',
+{t:'r',d:5,s:3,genre:'avis en ligne',domain:'loisirs',level:'A2',src:FEI,
  title:'Atelier « pâtes fraîches » — avis de Camille B.',
  text:"<b>★★★★☆ Atelier « pâtes fraîches » — Camille B.</b><br><br>J'ai offert cet atelier à ma sœur pour son anniversaire et nous l'avons suivi ensemble samedi matin. Nous avons préparé trois sortes de pâtes et nous avons tout emporté à la maison. Le chef a expliqué chaque étape lentement, ce que j'ai beaucoup apprécié : je n'avais jamais cuisiné de pâtes fraîches.<br><br>Un seul point négatif : nous avons attendu vingt minutes au début, parce que le groupe précédent a fini en retard. Pour le reste, j'ai trouvé le prix correct et j'ai déjà réservé l'atelier « sauces ».",
  qs:[
@@ -104,7 +114,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Elle a réservé un autre atelier.","Elle a offert un second atelier à sa sœur.","Elle a demandé un remboursement partiel."],0,
    "réservé l'atelier « sauces » 是为自己预订，文中未提再次赠送。"]]},
 
-{t:'r',d:5,s:4,genre:'compte rendu associatif',domain:'vie associative',level:'A2',
+{t:'r',d:5,s:4,genre:'compte rendu associatif',domain:'vie associative',level:'A2',src:FEI,
  title:'Compte rendu — assemblée du club de randonnée',
  text:"<b>Compte rendu — assemblée du club de randonnée</b><br><br><b>Bilan de la saison.</b> Nous avons organisé 22 sorties, soit trois de plus que l'an passé. Nous avons accueilli 41 nouveaux membres, surtout des débutants. Deux sorties n'ont pas eu lieu : nous avons préféré reporter à cause du vent.<br><br><b>Matériel.</b> Nous avons acheté six paires de bâtons et nous avons réparé la remorque.<br><br><b>Difficultés.</b> Nous n'avons pas trouvé assez de volontaires pour encadrer les sorties du dimanche matin. Le bureau a donc décidé de proposer une formation courte en octobre.",
  qs:[
@@ -118,7 +128,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Organiser une formation courte.","Supprimer les sorties du dimanche.","Acheter davantage de matériel."],0,
    "文中唯一决定是 une formation courte en octobre。"]]},
 
-{t:'l',d:5,s:1,genre:'message vocal',domain:'musique',level:'A2',
+{t:'l',d:5,s:1,genre:'message vocal',domain:'musique',level:'A2',src:FEI,
  title:'Le concert d\'hier soir',
  script:"Salut, c'est Malik. Alors, hier soir, j'ai enfin vu le groupe dont je t'ai parlé. J'ai attendu presque une heure devant la salle, mais ça valait le coup. Ils ont joué pendant deux heures et ils ont fait trois rappels. J'ai pris des photos, mais je les ai toutes ratées. Ah, et j'ai croisé Inès à l'entrée : elle a acheté deux places pour le concert de novembre. Si tu veux venir, préviens-la vite, parce qu'elle a déjà proposé la deuxième place à quelqu'un d'autre.",
  qs:[
@@ -132,7 +142,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Ses photos.","Le nombre de rappels du groupe.","La durée du concert."],0,
    "他明确说 « je les ai toutes ratées »。"]]},
 
-{t:'l',d:5,s:2,genre:'interview radio',domain:'commerce de proximité',level:'A2',
+{t:'l',d:5,s:2,genre:'interview radio',domain:'commerce de proximité',level:'A2',src:FEI,
  title:'Un boulanger a changé ses horaires',
  script:"— Ce matin, nous recevons Karim Belaïd, boulanger à Nevers. Karim, vous avez changé vos horaires cette année.\n— Oui. En février, j'ai décidé d'ouvrir à six heures trente au lieu de cinq heures.\n— Pourquoi ?\n— J'ai perdu deux employés en janvier et je n'ai trouvé aucun remplaçant. J'ai préféré réduire les horaires plutôt que baisser la qualité.\n— Et les clients ?\n— Ils ont mieux réagi que je ne l'avais imaginé. J'ai expliqué la situation sur une affiche et presque personne n'a protesté.",
  qs:[
@@ -146,7 +156,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Mieux qu'il ne l'attendait.","Ils ont protesté auprès de la mairie.","Ils n'ont pas compris l'affiche."],0,
    "« mieux que je ne l'avais imaginé » 是明确表态。"]]},
 
-{t:'l',d:5,s:3,genre:'dialogue professionnel',domain:'travail',level:'A2',
+{t:'l',d:5,s:3,genre:'dialogue professionnel',domain:'travail',level:'A2',src:FEI,
  title:'Préparer la réunion de demain',
  script:"— Tu as préparé les documents pour demain ?\n— J'ai imprimé le budget et j'ai relu le compte rendu. Mais je n'ai pas reçu les chiffres du service technique.\n— Ah. J'ai envoyé un rappel hier soir.\n— Alors on attend. Si on n'a rien à midi, j'ai proposé qu'on présente seulement la première partie.\n— D'accord. J'ai réservé la salle 2 pour deux heures, ça suffira.\n— Et le café ? La dernière fois, on a oublié.\n— Cette fois, j'ai commandé les thermos.",
  qs:[
@@ -160,7 +170,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Le café.","La durée de réservation de la salle.","L'impression du budget."],0,
    "« La dernière fois, on a oublié » 直接指向咖啡。"]]},
 
-{t:'l',d:5,s:4,genre:'podcast · témoignage',domain:'logement étudiant',level:'A2',
+{t:'l',d:5,s:4,genre:'podcast · témoignage',domain:'logement étudiant',level:'A2',src:FEI,
  title:'Comment j\'ai trouvé mon studio',
  script:"Quand j'ai commencé mes études à Lille, j'ai cherché un logement pendant six semaines. J'ai visité onze appartements. J'ai envoyé une trentaine de dossiers et je n'ai reçu presque aucune réponse. Un jour, j'ai parlé de mon problème à la boulangère du quartier. Elle a téléphoné à sa cousine, qui a loué son studio deux jours plus tard — à moi. Depuis, je conseille toujours la même chose : les annonces, oui, mais parlez-en aussi autour de vous. J'ai trouvé mon logement grâce à une conversation, pas grâce à un site.",
  qs:[
@@ -175,7 +185,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    "une trentaine 指投出的材料份数，six 指周数。"]]},
 
 /* ============================ Day 6 · Passé composé avec être + accord ============================ */
-{t:'r',d:6,s:1,genre:'carte postale',domain:'voyage en famille',level:'A2',
+{t:'r',d:6,s:1,genre:'carte postale',domain:'voyage en famille',level:'A2',src:FEI,
  title:'Coucou de Bordeaux',
  text:"<b>Coucou de Bordeaux !</b><br><br>Nous sommes partis vendredi soir et nous sommes arrivés très tard : le train est resté une heure à l'arrêt à cause d'un problème sur la voie.<br><br>Samedi, nous sommes allés au marché, puis nous sommes montés en haut de la tour Pey-Berland. Léa est redescendue tout de suite : elle n'aime pas la hauteur.<br><br>Dimanche, mes parents sont venus nous rejoindre et nous sommes retournés au bord du fleuve. Nous rentrons mardi. Je suis passée devant une librairie qui te plairait beaucoup.<br><br>Bises, Anaïs",
  qs:[
@@ -189,7 +199,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Dimanche.","Vendredi soir.","Mardi."],0,
    "mardi 是返程日，vendredi 是出发日。"]]},
 
-{t:'r',d:6,s:2,genre:'message de forum',domain:'transport ferroviaire',level:'A2',
+{t:'r',d:6,s:2,genre:'message de forum',domain:'transport ferroviaire',level:'A2',src:FEI,
  title:'Je suis descendu à la mauvaise gare',
  text:"<b>Forum voyageurs — « Je suis descendu à la mauvaise gare »</b><br><br>Bonjour, je raconte ma mésaventure de mardi, ça servira peut-être à quelqu'un.<br><br>Je suis monté dans le TER à Tours. Je suis descendu à Saint-Pierre-des-Corps parce que j'ai entendu le nom de la ville, mais mon billet allait jusqu'à Amboise. Le contrôleur n'était pas encore passé.<br><br>Je suis allé au guichet. L'agent est resté très calme et m'a mis sur le train suivant, sans supplément. Je suis arrivé avec cinquante minutes de retard, c'est tout.<br><br>Conclusion : ne descendez pas au premier nom connu, vérifiez l'écran.",
  qs:[
@@ -203,7 +213,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Vérifier l'écran plutôt que se fier au nom entendu.","Voyager uniquement avec un billet contrôlé.","Descendre à la première gare connue."],0,
    "结论句与第三个选项正相反。"]]},
 
-{t:'r',d:6,s:3,genre:'article scolaire',domain:'sortie nature',level:'A2',
+{t:'r',d:6,s:3,genre:'article scolaire',domain:'sortie nature',level:'A2',src:FEI,
  title:'Sortie nature : 54 élèves sur les hauteurs de Saint-Just',
  text:"<b>Sortie nature : 54 élèves sur les hauteurs de Saint-Just</b><br><br>Les élèves de deux classes de quatrième sont partis jeudi matin du collège Jean-Moulin. Ils sont arrivés au pied du plateau vers neuf heures et sont montés pendant une heure et demie. Trois élèves sont restés en bas avec un accompagnateur, en raison d'une entorse survenue la semaine précédente.<br><br>Le groupe est redescendu par un autre chemin, plus long mais moins raide. Tout le monde est rentré au collège à seize heures dix, avec vingt minutes d'avance sur l'horaire annoncé aux familles.",
  qs:[
@@ -217,7 +227,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Le groupe est rentré en avance.","Le groupe est rentré avec vingt minutes de retard.","Aucun horaire n'avait été communiqué."],0,
    "« vingt minutes d'avance sur l'horaire annoncé » —— 注意 avance 与 retard 的区分。"]]},
 
-{t:'r',d:6,s:4,genre:'page de journal intime',domain:'vie de quartier',level:'A2',
+{t:'r',d:6,s:4,genre:'page de journal intime',domain:'vie de quartier',level:'A2',src:FEI,
  title:'Jeudi soir',
  text:"<b>Jeudi soir.</b><br><br>Je suis rentrée à pied. Je suis passée par le parc, ce que je ne fais jamais le jeudi, et je suis tombée sur Madame Ferrand, mon ancienne voisine. Nous ne nous étions pas vues depuis quatre ans.<br><br>Elle est partie de l'immeuble en 2022, elle est allée vivre chez sa fille, puis elle est revenue dans le quartier au printemps. Elle m'a proposé un café. Je suis restée une heure. Je suis sortie de chez elle avec l'impression d'avoir retrouvé quelque chose.<br><br>Demain, je repasserai par le parc.",
  qs:[
@@ -231,7 +241,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Une impression agréable de retrouvailles.","De la gêne d'être restée trop longtemps.","De la déception de ne pas avoir été reconnue."],0,
    "« l'impression d'avoir retrouvé quelque chose » + 打算再走同一条路。"]]},
 
-{t:'l',d:6,s:1,genre:'dialogue entre voisins',domain:'retour de vacances',level:'A2',
+{t:'l',d:6,s:1,genre:'dialogue entre voisins',domain:'retour de vacances',level:'A2',src:FEI,
  title:'Vous êtes rentrés !',
  script:"— Ah, vous êtes rentrés ! Vous êtes partis longtemps ?\n— Trois semaines. Nous sommes allés en Ardèche, puis nous sommes descendus jusqu'à Nîmes.\n— Et les enfants ?\n— Ils sont restés chez leurs grands-parents la première semaine, ils nous ont rejoints après.\n— Vous êtes revenus par la route ?\n— Non, en train. La voiture est tombée en panne le premier jour ; elle est restée au garage tout le mois.\n— Ah quand même. Et elle est réparée ?\n— Nous devons y retourner samedi.",
  qs:[
@@ -245,7 +255,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Après la première semaine.","Dès le départ.","Le jour du retour."],0,
    "« la première semaine ... ils nous ont rejoints après »。"]]},
 
-{t:'l',d:6,s:2,genre:'message vocal administratif',domain:'démarches',level:'A2',
+{t:'l',d:6,s:2,genre:'message vocal administratif',domain:'démarches',level:'A2',src:FEI,
  title:'Un document manque à votre dossier',
  script:"Bonjour Madame Roux, c'est Julien, du service des inscriptions. Je suis passé à votre bureau ce matin, mais vous étiez en réunion. Votre dossier est arrivé chez nous lundi. Il est complet, sauf l'attestation d'assurance. Je suis allé vérifier auprès de ma collègue : elle est partie en congé vendredi et n'a rien reçu de votre part. Vous pouvez déposer le document jusqu'à jeudi seize heures. Après, le dossier repart au service central et le délai sera plus long. Merci, bonne journée.",
  qs:[
@@ -259,7 +269,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Elle était en réunion.","Elle était en congé.","Il n'est pas venu au bureau."],0,
    "请假的是他的同事，不是 Mme Roux。"]]},
 
-{t:'l',d:6,s:3,genre:'reportage radio',domain:'événement solidaire',level:'A2',
+{t:'l',d:6,s:3,genre:'reportage radio',domain:'événement solidaire',level:'A2',src:FEI,
  title:'La marche solidaire a doublé sa participation',
  script:"Ils sont partis à huit heures de la place de la Mairie : quatre cent dix marcheurs, selon les organisateurs. Le groupe est monté jusqu'au belvédère, puis il est redescendu par le sentier des Vignes. Une trentaine de participants sont restés au village pour préparer le repas.\nCette année, la marche est devenue payante : cinq euros par personne, entièrement reversés à une association qui accompagne les familles à l'hôpital. L'an dernier, l'événement était gratuit et avait réuni deux cents personnes. Les organisateurs ne s'attendaient pas à ce que le nombre double.",
  qs:[
@@ -273,7 +283,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Ils restent au village pour préparer le repas.","Ils montent les premiers jusqu'au belvédère.","Ils redescendent par un autre chemin."],0,
    "这三十人恰恰没有参加行走。"]]},
 
-{t:'l',d:6,s:4,genre:'entretien',domain:'arrivée en France',level:'A2',
+{t:'l',d:6,s:4,genre:'entretien',domain:'arrivée en France',level:'A2',src:FEI,
  title:'Les premiers jours d\'Amina',
  script:"— Amina, vous êtes arrivée en France il y a deux ans.\n— Oui, je suis arrivée en septembre, pour un master.\n— Comment se sont passés les premiers jours ?\n— Je suis descendue de l'avion avec deux valises et une adresse. Je suis allée directement à la résidence, mais mon dossier n'était pas encore validé. Je suis restée trois nuits chez une amie d'amie.\n— Et ensuite ?\n— Tout est allé vite. Je suis retournée au bureau du logement le lundi, une chambre s'est libérée le mardi, et je suis entrée dans mes affaires le mercredi soir.",
  qs:[
@@ -288,7 +298,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    "deux ans 是她来法国的时长。"]]},
 
 /* ============================ Day 7 · Imparfait ============================ */
-{t:'r',d:7,s:1,genre:'récit de souvenir',domain:'enfance',level:'A2',
+{t:'r',d:7,s:1,genre:'récit de souvenir',domain:'enfance',level:'A2',src:FEI,
  title:'Les mercredis de la rue des Lilas',
  text:"<b>Les mercredis de la rue des Lilas</b><br><br>Quand j'avais dix ans, le mercredi n'était pas un jour d'école. Ma mère travaillait, alors je passais l'après-midi à la bibliothèque du quartier. C'était un bâtiment sombre qui sentait le papier et la poussière.<br><br>La bibliothécaire s'appelait Madame Estève. Elle ne souriait pas beaucoup, mais elle gardait toujours un livre de côté pour moi. Je lisais assis par terre, entre deux rayons, jusqu'à ce qu'elle éteigne les lumières du fond.<br><br>Je ne savais pas, à l'époque, que ces après-midi décideraient de mon métier.",
  qs:[
@@ -302,7 +312,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Ces après-midi ont influencé son choix professionnel.","Il regrette d'avoir passé ses mercredis ainsi.","Il a fini par oublier cette période."],0,
    "« décideraient de mon métier » 指向职业选择。"]]},
 
-{t:'r',d:7,s:2,genre:'reportage · avant / maintenant',domain:'urbanisme',level:'A2+',
+{t:'r',d:7,s:2,genre:'reportage · avant / maintenant',domain:'urbanisme',level:'A2+',src:FEI,
  title:'Le quartier de la Gare, trente ans après',
  text:"<b>Le quartier de la Gare, trente ans après</b><br><br>Dans les années quatre-vingt-dix, il y avait ici quatre cafés, deux cinémas et un marché le vendredi. Les trains s'arrêtaient toutes les vingt minutes et les employés déjeunaient dehors dès qu'il faisait beau.<br><br>Aujourd'hui, il reste un café, le marché a déménagé et des bureaux ont remplacé l'un des cinémas. « Ce n'était pas mieux avant, tempère Jean Ravel, commerçant depuis 1988. C'était simplement plus bruyant et plus jeune. Maintenant, les gens arrivent le matin et repartent le soir. »<br><br>La mairie annonce un réaménagement de la place pour 2028.",
  qs:[
@@ -314,9 +324,9 @@ globalThis.__DELF50_CORPUS_V200 = [
    "市场是搬走了，咖啡馆是减少到一家。"],
   ["Quelle habitude existait dans les années quatre-vingt-dix ?",
    ["Les employés déjeunaient dehors quand il faisait beau.","Les gens arrivaient le matin et repartaient le soir.","La place venait d'être réaménagée."],0,
-   "第二项是今天的状况，第三项是 2028 年的计划。"]]},
+   "« arriver le matin et repartir le soir » 是今天的状况；« la place venait d'être réaménagée » 对应的是 2028 年的改造计划。"]]},
 
-{t:'r',d:7,s:3,genre:'lettre',domain:'école et mémoire',level:'A2+',
+{t:'r',d:7,s:3,genre:'lettre',domain:'école et mémoire',level:'A2+',src:FEI,
  title:'Lettre à un ancien professeur',
  text:"<b>Monsieur,</b><br><br>Vous ne vous souvenez sûrement pas de moi. J'étais au fond de la classe, à gauche, et je ne parlais presque jamais.<br><br>À cette époque, je détestais lire à voix haute. Chaque fois que c'était mon tour, mes mains tremblaient. Vous ne m'avez jamais forcé : vous me demandiez seulement une phrase, puis vous continuiez vous-même.<br><br>Je suis aujourd'hui professeur de collège. Quand un élève ne veut pas lire, je pense à vous et je demande une phrase. Une seule.<br><br>Avec ma reconnaissance,<br>R. Diallo",
  qs:[
@@ -330,7 +340,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["La même manière de ne pas forcer un élève.","L'habitude de placer les timides au fond.","La lecture à voix haute à chaque cours."],0,
    "最后一段直接说明他沿用了那一句的做法。"]]},
 
-{t:'r',d:7,s:4,genre:'entretien de presse locale',domain:'mémoire rurale',level:'A2+',
+{t:'r',d:7,s:4,genre:'entretien de presse locale',domain:'mémoire rurale',level:'A2+',src:FEI,
  title:'« On ne fermait pas à clé » — rencontre avec Odette Vasseur',
  text:"<b>« On ne fermait pas à clé » — rencontre avec Odette Vasseur, 91 ans</b><br><br><b>Vous êtes née dans ce village ?</b><br>Oui, en 1935. Nous étions sept enfants. Il n'y avait pas d'eau courante ; nous allions à la fontaine deux fois par jour.<br><br><b>Vous regrettez cette époque ?</b><br>Non. Les gens disent qu'on ne fermait pas à clé, c'est vrai. Mais on avait froid, et quand quelqu'un tombait malade, le médecin mettait deux heures à venir.<br><br><b>Qu'est-ce qui vous manque ?</b><br>Le bruit. Il y avait des enfants partout. Maintenant, le silence commence à quatre heures.",
  qs:[
@@ -344,7 +354,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["L'animation du village.","Les portes que l'on ne fermait pas.","Les visites du médecin."],0,
    "回答 « Qu'est-ce qui vous manque ? » 的是 « Le bruit »。"]]},
 
-{t:'l',d:7,s:1,genre:'podcast · souvenir',domain:'école primaire',level:'A2',
+{t:'l',d:7,s:1,genre:'podcast · souvenir',domain:'école primaire',level:'A2',src:FEI,
  title:'L\'odeur du couloir en hiver',
  script:"Je me souviens surtout de l'odeur du couloir en hiver. On entrait, les manteaux mouillés séchaient sur le radiateur, et il y avait cette odeur de laine chaude. La maîtresse s'appelait Madame Ory. Elle écrivait au tableau en nous tournant le dos et elle savait exactement qui parlait. On croyait qu'elle avait des yeux derrière la tête. En réalité, elle regardait le reflet dans la vitre. Je l'ai compris trente ans plus tard, un jour où j'écrivais moi-même au tableau.",
  qs:[
@@ -358,7 +368,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Une odeur.","Un bruit dans le couloir.","La vue du tableau."],0,
    "开篇即 « l'odeur du couloir »，是全段的感官入口。"]]},
 
-{t:'l',d:7,s:2,genre:'micro-trottoir',domain:'vacances d\'été',level:'A2+',
+{t:'l',d:7,s:2,genre:'micro-trottoir',domain:'vacances d\'été',level:'A2+',src:FEI,
  title:'Les étés de votre enfance',
  script:"— Nous, on ne partait pas. On restait dans la cour de l'immeuble et on jouait jusqu'à la nuit.\n— Moi, chaque été, mes parents m'envoyaient chez ma tante en Bretagne. Il pleuvait la moitié du temps et j'adorais ça.\n— Franchement, je m'ennuyais. Il n'y avait rien dans mon village : pas de piscine, pas de cinéma. On attendait la rentrée.\n— Ce qui a changé, c'est qu'on ne prévenait pas. On sortait, on rentrait pour manger. Personne ne téléphonait.",
  qs:[
@@ -372,7 +382,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["On n'avait pas besoin de prévenir ses parents.","Le nombre de piscines a augmenté.","Les vacances étaient plus longues."],0,
    "« on ne prévenait pas ... Personne ne téléphonait » 是他强调的对比点。"]]},
 
-{t:'l',d:7,s:3,genre:'dialogue familial',domain:'photos anciennes',level:'A2',
+{t:'l',d:7,s:3,genre:'dialogue familial',domain:'photos anciennes',level:'A2',src:FEI,
  title:'Devant les vieilles photos',
  script:"— Regarde, c'est la maison de Chantilly.\n— Il y avait un mur, là ?\n— Oui, on ne voyait pas la rue. Et le jardin descendait jusqu'au fond.\n— Papi portait toujours cette veste ?\n— Toujours. Même en juillet. Il disait qu'il avait froid.\n— Et là, c'est qui, la dame ?\n— C'est madame Perrin, la voisine. Elle venait tous les dimanches et elle apportait une tarte. Elle ne restait jamais plus d'une heure.",
  qs:[
@@ -386,7 +396,7 @@ globalThis.__DELF50_CORPUS_V200 = [
    ["Le mur qui cachait la rue.","Le jardin du fond.","Les visites du dimanche."],0,
    "« Il y avait un mur, là ? » 的提问方式说明如今已不在。"]]},
 
-{t:'l',d:7,s:4,genre:'chronique radio · portrait',domain:'marché et métiers',level:'A2+',
+{t:'l',d:7,s:4,genre:'chronique radio · portrait',domain:'marché et métiers',level:'A2+',src:FEI,
  title:'Un ancien marchand de fruits se souvient',
  script:"Notre invité tenait un stand de fruits sur le marché de Cahors.\n— Le mardi, j'arrivais à quatre heures. Il faisait encore nuit et il n'y avait que nous et les boulangers. On installait les tréteaux, on se parlait d'un stand à l'autre.\n— C'était dur ?\n— L'hiver, oui. Mais on savait à qui on vendait. Je connaissais les prénoms, les régimes, les enfants. Aujourd'hui, on me dit que les clients veulent aller vite. Je ne suis pas sûr. Je crois qu'on ne leur laisse plus le temps de parler.",
  qs:[

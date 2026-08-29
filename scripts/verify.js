@@ -418,7 +418,7 @@ const renderProbe = run(`window.__probe=(function(){try{
 }catch(e){return {err:String(e && e.message || e)}}})();`);
 check(renderProbe && !renderProbe.err, 'reading, listening and progress pages all render', renderProbe && renderProbe.err);
 if (renderProbe && !renderProbe.err) {
-  check(/来源参照/.test(renderProbe.reading), 'the reading page shows the cited source to the learner');
+  check(/校准参照/.test(renderProbe.reading), 'the reading page shows the cited source to the learner');
   check(/Journal en français facile/.test(renderProbe.listening), 'the listening page points to authentic French audio');
   check(/学习材料校验/.test(renderProbe.progress), 'the progress page shows the content audit');
   check(!/r177-d\d{2}-s\d{2}|traceId|semanticFingerprint/.test(renderProbe.reading), 'no internal identifier is rendered on the reading page');
@@ -435,6 +435,107 @@ for (let day = 4; day <= AUTHORED_UNTIL; day++) {
   }
 }
 notes.push(`  info authored coverage days 4-${AUTHORED_UNTIL}: ${authoredIds.size} documents; ${gaps.length} slot(s) still generator-produced${gaps.length ? ' (' + gaps.slice(0, 6).join(', ') + (gaps.length > 6 ? ', …' : '') + ')' : ''}`);
+
+/**
+ * A correct option that always sits in the same place makes every question
+ * answerable by clicking that position, with no French involved. Nothing else in
+ * this file catches it: the texts can be perfectly distinct and the distractors
+ * perfectly text-derived while the key never moves. So the position distribution
+ * is a release gate in its own right.
+ */
+function keyPositions(rows) {
+  const counts = {};
+  for (const r of rows) for (const q of (r.item.qs || [])) counts[q[2]] = (counts[q[2]] || 0) + 1;
+  return counts;
+}
+function balanceOf(counts) {
+  const slots = Object.keys(counts);
+  const total = slots.reduce((n, k) => n + counts[k], 0);
+  const share = slots.map((k) => counts[k] / total);
+  return { total, counts, top: Math.max(...share), bottom: Math.min(...share), slots: slots.length };
+}
+{
+  const all = R.concat(L).filter((r) => r.day >= 1 && r.day <= 50);
+  const b = balanceOf(keyPositions(all));
+  const fair = 1 / Math.max(b.slots, 1);
+  check(b.total > 0 && b.top <= fair * 1.25 && b.bottom >= fair * 0.75,
+    'correct answers are spread evenly across option positions (days 1-50)',
+    `${JSON.stringify(b.counts)} of ${b.total}; top ${(b.top * 100).toFixed(1)}%, bottom ${(b.bottom * 100).toFixed(1)}%`);
+  notes.push(`  info answer key positions days 1-50: ${JSON.stringify(b.counts)} — always picking one position scores ${(b.top * 100).toFixed(1)}%`);
+
+  const win = R.concat(L).filter(inWindow);
+  const bw = balanceOf(keyPositions(win));
+  const fairw = 1 / Math.max(bw.slots, 1);
+  check(bw.total > 0 && bw.top <= fairw * 1.25 && bw.bottom >= fairw * 0.75,
+    `correct answers are spread evenly across option positions (days 4-${AUTHORED_UNTIL})`,
+    `${JSON.stringify(bw.counts)} of ${bw.total}`);
+
+  /* The layer's own balance audit must agree, and must be visible, not just computed. */
+  check(!!(corpusAudit && corpusAudit.answerBalance && corpusAudit.answerBalance.ok),
+    'the corpus layer reports a balanced answer-key distribution',
+    corpusAudit && JSON.stringify(corpusAudit.answerBalance));
+  if (corpusAudit) {
+    notes.push(`  info option order: ${corpusAudit.applied.length} authored + ${corpusAudit.balanced || 0} legacy documents shuffled, ${corpusAudit.balanceSkipped || 0} left as studied`);
+  }
+}
+
+/**
+ * The shuffle is seeded from question content, so it must land identically on every
+ * boot, every device and every redeploy. If it ever drifted, a stored answer index
+ * would point at a different option and the learner's record would silently rot.
+ */
+{
+  const again = boot(JSON.parse(JSON.stringify(prior)));
+  check(again.errors.length === 0, 'bundle boots a second time cleanly', again.errors[0]);
+  const snap = (win) => {
+    const el = win.document.createElement('script');
+    el.textContent = `window.__probe=(function(){var out={};
+      [['reading',V13_READINGS],['listening',V13_LISTENINGS]].forEach(function(p){
+        p[1].forEach(function(it){ if(it&&it.qs) out[p[0]+'|'+it.id]=JSON.stringify(it.qs.map(function(q){return [q[1],q[2]];})); });});
+      return out;})();`;
+    win.document.body.appendChild(el); el.remove();
+    return win.__probe || {};
+  };
+  const a = snap(W), b = snap(again.window);
+  const keys = Object.keys(a);
+  const drift = keys.filter((k) => a[k] !== b[k]);
+  check(keys.length > 0 && drift.length === 0,
+    'option order and answer keys are identical across two independent boots',
+    `${drift.length}/${keys.length} drifted, e.g. ${drift.slice(0, 3).join(', ')}`);
+}
+
+/**
+ * The learner this project exists for has days 1-3 finished, day 4 reading finished
+ * and one day-4 listening answered. Every document behind that evidence must come
+ * back byte-for-byte, option order included — otherwise their stored answer indices
+ * would point at options that moved.
+ */
+{
+  const studiedIds = { reading: [], listening: [] };
+  for (const [key] of Object.entries(prior.reading.answers)) studiedIds.reading.push(key.split(':')[1]);
+  for (const [key] of Object.entries(prior.listening.answers)) studiedIds.listening.push(key.split(':')[1]);
+  const el = W.document.createElement('script');
+  el.textContent = `window.__probe=(function(){var ids=${JSON.stringify(studiedIds)},out={};
+    ['reading','listening'].forEach(function(t){var b=(t==='reading'?V13_READINGS:V13_LISTENINGS);
+      ids[t].forEach(function(id){ for(var i=0;i<b.length;i++) if(String(b[i].id)===id){
+        out[t+'|'+id]=JSON.stringify({t:b[i].title,x:String(b[i].text||b[i].script||''),q:b[i].qs}); break; } });});
+    return out;})();`;
+  W.document.body.appendChild(el); el.remove();
+  const studied = W.__probe || {};
+  /* Days 1-2 of the fixture use synthetic ids that the bank never had, so presence
+     is a property of the fixture, not of this build. What must hold is the reverse:
+     of the answered documents that do exist, none may have been touched. */
+  const resolved = [...new Set([].concat(
+    studiedIds.reading.map((i) => 'reading|' + i), studiedIds.listening.map((i) => 'listening|' + i)))]
+    .filter((k) => studied[k]);
+  check(resolved.length > 0, 'answered documents resolve in the bank so the freeze can be checked',
+    `${resolved.length} resolved`);
+  notes.push(`  info ${resolved.length} of the learner's answered documents exist in this bank and were checked for drift`);
+  const shuffledStudied = Object.entries(studied).filter(([k]) => frozen.has(k.split('|')[1]))
+    .filter(([, v]) => { try { return JSON.parse(v).q.some((q) => q[4] && q[4].route === 'corpus-authored-v1'); } catch (e) { return false; } });
+  check(shuffledStudied.length === 0, 'no document the learner already answered was rewritten or reshuffled',
+    shuffledStudied.map(([k]) => k).slice(0, 3).join(', '));
+}
 
 /* ------------------------------------------------------------- report */
 console.log(notes.join('\n'));

@@ -268,7 +268,7 @@ C.push(
   ["En quoi les consommateurs font-ils trop confiance ?",
    ["Ils croient que le label couvre toute la chaîne.","Ils pensent que les contrôles sont fréquents.","Ils supposent que le prix est plus élevé."],0,
    "« chaque label a un périmètre défini, souvent étroit »。"],
-  ["Que montre l'exemple donné ?",
+  ["Que révèle l'exemple du prix minimum garanti ?",
    ["Un label peut exclure les ouvriers saisonniers de son périmètre.","Les labels dissimulent volontairement leurs limites.","Les producteurs ne perçoivent aucun prix minimum."],0,
    "« Ce n'est pas une tromperie : c'est écrit. »"],
   ["Que dit-il des contrôles ?",

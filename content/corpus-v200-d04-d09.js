@@ -61,7 +61,7 @@ C.push(
  qs:[
   ["Où se tient le marché en ce moment ?",
    ["Sur le parking de la salle des fêtes.","Sur la place du Général-Leclerc.","À trois cents mètres de la salle des fêtes."],0,
-   "第三项把距离的方向弄反了：三百米是从广场到停车场的距离。广场正在施工。"],
+   "« à trois cents mètres de la salle des fêtes » 把距离的方向弄反了：三百米是从广场量到停车场的距离。广场本身正在施工。"],
   ["Combien de fois par semaine le marché a-t-il lieu ?",
    ["Deux fois.","Une fois.","Tous les jours sauf le dimanche."],0,
    "« le marché du mercredi et du samedi » —— 两天。"],

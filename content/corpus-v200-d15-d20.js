@@ -487,7 +487,7 @@ C.push(
    "« plutôt que de continuer vers le refuge, pourtant plus proche »——所以当时觉得荒谬。"],
   ["Quelle leçon l'auteur tire-t-il ?",
    ["Un changement de plan doit venir de la situation, pas d'un surplus de temps.","Il ne faut jamais partir en montagne sans guide.","Il faut toujours privilégier le refuge le plus proche."],0,
-   "« La leçon n'est pas « il faut avoir un guide ». Elle est plus simple… » 作者明确排除了第二项。"]]},
+   "« La leçon n'est pas « il faut avoir un guide ». Elle est plus simple… » 作者明确排除了「必须有向导」这一说法。"]]},
 
 {t:'r',d:19,s:2,genre:'carnet de voyage',domain:'voyage en train de nuit',level:'B1+',src:RFI,
  title:'Vienne–Rome, couchette 42',
