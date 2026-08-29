@@ -1,6 +1,7 @@
 'use strict';
 (function(){
-const RELEASE=globalThis.__DELF50_RELEASE||{app:'1.8.17',content:'1.8.8',inputQuality:'source-calibrated-diverse-input-v2'};\nconst APP=RELEASE.app,CONTENT=RELEASE.content,ROUTE=RELEASE.inputQuality;
+const RELEASE=globalThis.__DELF50_RELEASE||{app:'1.8.17',content:'1.8.8',inputQuality:'source-calibrated-diverse-input-v2'};
+const APP=RELEASE.app,CONTENT=RELEASE.content,ROUTE=RELEASE.inputQuality;
 const CURR=Array.isArray(globalThis.__DELF50_CURRICULUM_50)?globalThis.__DELF50_CURRICULUM_50:[];
 const SOURCE_SEEDS_RAW=Array.isArray(globalThis.__DELF50_SOURCE_SEEDS_V181)?globalThis.__DELF50_SOURCE_SEEDS_V181:[];
 function usableSeed190(s){const z=(String(s.angle||'')+' '+String(s.factFr||'')).toLowerCase(),f=String(s.familyId||'');
