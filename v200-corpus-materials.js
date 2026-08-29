@@ -1,0 +1,401 @@
+'use strict';
+/* DELF50 · v200-corpus-materials
+ *
+ * 职责
+ *   1. 把 content/corpus-v200.js 中逐篇撰写的材料装载到题库对应槽位。
+ *   2. 装载前对语料做阻断式校验：不合格的条目直接跳过，不写入题库。
+ *   3. 锁定判据只看学习证据的「身份」（content id / 标题 / 草稿键），不看槽位序号。
+ *   4. 不修改 S 的任何字段；装载前后对学习证据做快照比对，不一致立即回滚并中止。
+ *   5. 承接原 v199 的显示层清洗（开发端编号不得进入学生界面）。
+ *
+ * 与既有层的关系
+ *   本层排在 v189 之后。未被语料覆盖的日期与模块保持既有层的产出，不受影响。
+ */
+(function(){
+var REL = globalThis.__DELF50_RELEASE || {};
+var ROUTE = 'corpus-authored-v1';
+var CORPUS = Array.isArray(globalThis.__DELF50_CORPUS_V200) ? globalThis.__DELF50_CORPUS_V200 : [];
+var TYPE = {r:'reading', l:'listening', w:'writing', s:'speaking', a:'application'};
+/* Two id generations coexist for every day/slot: 177 and 181. Which one a learner
+   is routed to depends on the layer stack (v181 re-routes what v177 had assigned),
+   and getAssignments() does not always agree with currentReading(). Rather than bet
+   on one, the corpus is applied to both twins of a slot. A learner only ever sees
+   one of them, so this does not duplicate anything on screen; it does guarantee the
+   authored text is reachable whichever generation the routing resolves to. Each
+   twin is lock-checked on its own evidence. */
+var GENERATIONS = ['177', '181'];
+var LETTER = {reading:'r', listening:'l', writing:'w', speaking:'s', application:'a'};
+var MAX = {reading:4, listening:4, writing:2, speaking:4, application:4};
+
+function pad(n){ return String(n).length < 2 ? '0' + n : String(n); }
+function bank(t){
+  if (t === 'reading')     return typeof V13_READINGS   !== 'undefined' ? V13_READINGS   : READINGS;
+  if (t === 'listening')   return typeof V13_LISTENINGS !== 'undefined' ? V13_LISTENINGS : LISTENINGS;
+  if (t === 'writing')     return typeof V13_WRITINGS   !== 'undefined' ? V13_WRITINGS   : WRITINGS;
+  if (t === 'speaking')    return typeof V13_SPEAKING   !== 'undefined' ? V13_SPEAKING   : SPEAKING;
+  return typeof V13_APPLICATION !== 'undefined' ? V13_APPLICATION : APPLICATION;
+}
+function itemIds(t, d, s){
+  return GENERATIONS.map(function(g){ return LETTER[t] + g + '-d' + pad(d) + '-s' + pad(s); });
+}
+function find(t, id){
+  var b = bank(t);
+  for (var i = 0; i < b.length; i++) if (String(b[i].id) === id) return b[i];
+  return null;
+}
+
+/* ---------- 学习证据：全部按身份判断，不使用槽位序号 ---------- */
+function answerEvidence(t, d, id){
+  if (t !== 'reading' && t !== 'listening') return false;
+  var box = (t === 'reading' ? S.reading : S.listening);
+  var a = (box && box.answers) || {}, p = String(d) + ':' + String(id) + ':';
+  for (var k in a) if (Object.prototype.hasOwnProperty.call(a, k) && k.indexOf(p) === 0) return true;
+  return false;
+}
+function completedEvidence(t, id){
+  var c = S && S.contentProgress172 && S.contentProgress172.completed && S.contentProgress172.completed[t];
+  return !!(c && c[id]);
+}
+function recordEvidence(t, d, id, title){
+  var box = (t === 'writing' ? S.writing : t === 'speaking' ? S.speaking : t === 'application' ? S.application : null);
+  if (!box || !Array.isArray(box.records)) return false;
+  for (var i = 0; i < box.records.length; i++){
+    var r = box.records[i];
+    if (Number(r.day) !== Number(d)) continue;
+    if (String(r.contentId || '') === String(id)) return true;
+    if (title && String(r.title || '') === String(title)) return true;   /* 旧记录可能没有 contentId */
+  }
+  return false;
+}
+function draftEvidence(t, d, id){
+  var box = S.drafts171 && S.drafts171[t];
+  if (!box) return false;
+  var p = String(d) + ':' + t + ':';
+  for (var k in box){
+    if (!Object.prototype.hasOwnProperty.call(box, k)) continue;
+    if (k.indexOf(p) !== 0) continue;
+    if (String(box[k] || '').trim() && k.indexOf(String(id)) >= 0) return true;
+  }
+  return false;
+}
+function replacementEvidence(t, d, id){
+  var m = S.replacements177 && S.replacements177[t];
+  if (!m) return false;
+  for (var k in m){
+    if (!Object.prototype.hasOwnProperty.call(m, k)) continue;
+    var r = m[k];
+    if (!r || Number(r.day) !== Number(d)) continue;
+    if (String(r.newId || '') === String(id) || String(r.oldId || '') === String(id)) return true;
+  }
+  return false;
+}
+/* 任何一种证据存在 → 该条目已被学习者接触过 → 内容永久冻结 */
+function locked(t, d, id, item){
+  return answerEvidence(t, d, id)
+      || completedEvidence(t, id)
+      || recordEvidence(t, d, id, item && item.title)
+      || draftEvidence(t, d, id)
+      || replacementEvidence(t, d, id);
+}
+
+/* ---------- 学习证据快照：本层不应使其发生任何变化 ---------- */
+function evidenceSnapshot(){
+  try {
+    return JSON.stringify({
+      daily: S.daily,
+      taskDone: S.taskDone,
+      reading: S.reading && S.reading.answers,
+      listening: S.listening && S.listening.answers,
+      writing: S.writing && S.writing.records,
+      speaking: S.speaking && S.speaking.records,
+      application: S.application && S.application.records,
+      drafts: S.drafts171,
+      assignments: S.assignments172,
+      replacements: S.replacements177,
+      completed: S.contentProgress172 && S.contentProgress172.completed
+    });
+  } catch (e) { return 'snapshot-error'; }
+}
+
+/* ---------- 语料校验：不合格条目不写入题库 ---------- */
+var LEAK_RE = /\b(?:traceId|sourceSeed|contentId|familyId|semanticFingerprint|slot\s*\d+|[rlwsa](?:177|181)-d\d{2}-s\d{2}|Dossier\s+[RLWSA]\d{2}-\d+|Audio\s+[RL]\d{2}-\d+)\b/i;
+
+function plain(s){ return String(s == null ? '' : s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); }
+function norm(s){ return plain(s).toLowerCase().replace(/[^a-zà-ÿ0-9 ]+/gi, ' ').replace(/\s+/g, ' ').trim(); }
+function words(s){ return norm(s).split(' ').filter(Boolean).length; }
+function grams(s){
+  var a = norm(s).split(' '), r = {};
+  for (var i = 0; i + 2 < a.length; i++) r[a[i] + ' ' + a[i+1] + ' ' + a[i+2]] = 1;
+  return r;
+}
+function jaccard(a, b){
+  var n = 0, ka = Object.keys(a), kb = Object.keys(b);
+  if (!ka.length || !kb.length) return 0;
+  for (var i = 0; i < ka.length; i++) if (b[ka[i]]) n++;
+  return n / (ka.length + kb.length - n);
+}
+
+function validate(entry, seen){
+  var problems = [];
+  var t = TYPE[entry.t];
+  if (!t) { problems.push('type inconnu'); return problems; }
+  if (!(entry.d >= 1 && entry.d <= 50)) problems.push('jour hors plage');
+  if (!(entry.s >= 1 && entry.s <= MAX[t])) problems.push('slot hors plage');
+  var body = t === 'listening' ? entry.script : t === 'reading' ? entry.text : entry.prompt;
+  if (!body || words(body) < 45) problems.push('texte trop court');
+  if (!entry.title) problems.push('titre manquant');
+
+  var visible = [entry.title, body].concat((entry.qs || []).reduce(function(acc, q){
+    return acc.concat([q[0]]).concat(q[1] || []);
+  }, [])).join(' ');
+  if (LEAK_RE.test(visible)) problems.push('marqueur de développement visible');
+
+  if (t === 'reading' || t === 'listening'){
+    if (!Array.isArray(entry.qs) || entry.qs.length < 3) problems.push('moins de 3 questions');
+    (entry.qs || []).forEach(function(q, i){
+      if (!q[0]) problems.push('Q' + (i+1) + ' sans énoncé');
+      if (!Array.isArray(q[1]) || q[1].length < 3) problems.push('Q' + (i+1) + ' moins de 3 options');
+      if (!(q[2] >= 0 && q[2] < (q[1] || []).length)) problems.push('Q' + (i+1) + ' index de réponse invalide');
+      var uniq = {};
+      (q[1] || []).forEach(function(o){ uniq[norm(o)] = 1; });
+      if (Object.keys(uniq).length !== (q[1] || []).length) problems.push('Q' + (i+1) + ' options identiques');
+    });
+    var stems = {};
+    (entry.qs || []).forEach(function(q){ stems[norm(q[0])] = 1; });
+    if (Object.keys(stems).length !== (entry.qs || []).length) problems.push('énoncés répétés dans la même activité');
+  }
+
+  /* 同类型内文本完全重复 */
+  var key = t + '|' + norm(body);
+  if (seen.body[key]) problems.push('texte identique à ' + seen.body[key]);
+
+  /* 同一天跨模态主题重复：阅读与听力不得使用同一 domain */
+  var dk = entry.d + '|' + String(entry.domain || '').toLowerCase();
+  if ((t === 'reading' || t === 'listening') && seen.domain[dk] && seen.domain[dk] !== t){
+    problems.push('même domaine que ' + seen.domain[dk] + ' le même jour');
+  }
+  return problems;
+}
+
+/* ---------- 装载 ---------- */
+var audit = {
+  route: ROUTE, app: REL.app, content: REL.content,
+  corpusSize: CORPUS.length,
+  applied: [], protectedItems: [], missing: [], rejected: [], similar: [],
+  coverage: {}, status: 'pass'
+};
+
+var before = evidenceSnapshot();
+var restorePoints = [];
+var seen = {body: {}, domain: {}};
+var applicable = [];
+
+CORPUS.forEach(function(entry){
+  var t = TYPE[entry.t];
+  var problems = validate(entry, seen);
+  if (problems.length){
+    audit.rejected.push({day: entry.d, slot: entry.s, type: t || entry.t, problems: problems});
+    return;
+  }
+  var body = t === 'listening' ? entry.script : entry.text;
+  seen.body[t + '|' + norm(body)] = 'D' + entry.d + 'S' + entry.s;
+  if (t === 'reading' || t === 'listening') seen.domain[entry.d + '|' + String(entry.domain || '').toLowerCase()] = t;
+  applicable.push(entry);
+});
+
+/* 语料内部相似度审计（3-gram Jaccard），阈值 0.55，比生成式题库更严格 */
+(function(){
+  var byType = {};
+  applicable.forEach(function(e){
+    var t = TYPE[e.t];
+    if (t !== 'reading' && t !== 'listening') return;
+    (byType[t] = byType[t] || []).push({tag: 'D' + e.d + 'S' + e.s, g: grams(t === 'listening' ? e.script : e.text)});
+  });
+  Object.keys(byType).forEach(function(t){
+    var arr = byType[t];
+    for (var i = 0; i < arr.length; i++)
+      for (var j = i + 1; j < arr.length; j++){
+        var q = jaccard(arr[i].g, arr[j].g);
+        if (q >= 0.55) audit.similar.push([t, arr[i].tag, arr[j].tag, Number(q.toFixed(3))]);
+      }
+  });
+})();
+
+applicable.forEach(function(entry){
+  var t = TYPE[entry.t], ids = itemIds(t, entry.d, entry.s), found = 0;
+  ids.forEach(function(id){ if (find(t, id)) found++; });
+  if (!found){ audit.missing.push(ids.join('/')); return; }
+  ids.forEach(function(id){ applyTo(entry, t, id); });
+});
+
+function applyTo(entry, t, id){
+  var item = find(t, id);
+  if (!item) return;
+  if (locked(t, entry.d, id, item)){ audit.protectedItems.push(id); return; }
+
+  var patch = {title: entry.title};
+  if (t === 'reading')        patch.text   = entry.text;
+  else if (t === 'listening') patch.script = entry.script;
+  else                        patch.prompt = entry.prompt;
+
+  if (Array.isArray(entry.qs)){
+    patch.qs = entry.qs.map(function(q, i){
+      return [q[0], q[1].slice(), q[2], q[3] || '', {
+        kind: 'original', author: 'DELF50', route: ROUTE, questionIndex: i + 1
+      }];
+    });
+  }
+  patch.provenance = {
+    kind: 'original',
+    author: 'DELF50',
+    route: ROUTE,
+    note: "Texte original rédigé pour ce parcours. Calibrage : format et typologie de questions DELF B1 (France Éducation international), niveau CEFR indiqué. Aucun extrait d'examen ni d'article de presse n'est reproduit.",
+    genre: entry.genre || '',
+    domain: entry.domain || '',
+    level: entry.level || '',
+    curriculumDay: entry.d
+  };
+  if (entry.src && entry.src.label) patch.sourceRef = {label: entry.src.label, url: entry.src.url || ''};
+  patch.quality200 = {route: ROUTE, genre: entry.genre, domain: entry.domain, level: entry.level, words: words(t === 'listening' ? entry.script : entry.text)};
+
+  var keys = Object.keys(patch), snapshot = {};
+  for (var i = 0; i < keys.length; i++) snapshot[keys[i]] = item[keys[i]];
+  restorePoints.push({item: item, before: snapshot});
+  for (var i = 0; i < keys.length; i++) item[keys[i]] = patch[keys[i]];
+
+  audit.applied.push(id);
+  audit.coverage[t] = (audit.coverage[t] || 0) + 1;
+}
+
+/* 学习证据不得因本层发生任何变化 */
+if (before !== evidenceSnapshot()){
+  /* This layer only writes to bank objects, never to S, so this branch should be
+     unreachable. If it ever fires, the learner keeps a working app on the previous
+     content rather than losing the app entirely to a thrown bundle error. */
+  restorePoints.forEach(function(p){
+    var keys = Object.keys(p.before);
+    for (var i = 0; i < keys.length; i++){
+      if (p.before[keys[i]] === undefined) delete p.item[keys[i]];
+      else p.item[keys[i]] = p.before[keys[i]];
+    }
+  });
+  audit.status = 'aborted-evidence-changed';
+  audit.applied = [];
+  globalThis.__DELF50_CORPUS_AUDIT = audit;
+  if (typeof console !== 'undefined' && console.error) console.error('v200: content load rolled back, learning evidence must not change');
+  return;
+}
+
+audit.status = (audit.rejected.length || audit.similar.length || audit.missing.length) ? 'warn' : 'pass';
+
+/* ---------- 显示层清洗（承接原 v199 行为） ---------- */
+function clean(h){
+  h = String(h == null ? '' : h);
+  h = h.replace(/<details class="prov"[\s\S]*?<\/details>/gi, '');
+  h = h.replace(/(?:Dossier\s+[RLWSA]\d{2}-\d+|Audio\s+[RL]\d{2}-\d+)\s*[—–:-]?\s*/gi, '');
+  h = h.replace(/\b[rlwsa](?:177|181)-d\d{2}-s\d{2}\b/gi, '');
+  h = h.replace(/\b(?:traceId|sourceSeedIds?|contentId|familyId|semanticFingerprint)\b\s*[:：]?\s*[^<\n]*/gi, '');
+  return h;
+}
+function esc200(s){
+  return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+/* Une source citée qui reste invisible n'est pas une source : elle est affichée. */
+function sourceBlock200(item){
+  var ref = item && item.sourceRef;
+  if (!ref || !ref.label) return '';
+  var link = ref.url ? '<a href="' + esc200(ref.url) + '" target="_blank" rel="noopener">' + esc200(ref.label) + '</a>' : esc200(ref.label);
+  return '<div class="card"><div class="source"><b>来源参照 / Source de référence</b><br>' + link
+    + '<br>本篇课文按该来源的体裁、语域与事实改写，供学习使用；不是原文转载。点击可阅读真实原文。</div></div>';
+}
+
+/* L'audio de l'application est une synthèse vocale : on indique où écouter du vrai. */
+var LIVE_AUDIO_200 = '<div class="card"><div class="source"><b>真实法语音频 / Écoute authentique</b><br>'
+  + '<a href="https://francaisfacile.rfi.fr/fr/" target="_blank" rel="noopener">RFI · Journal en français facile</a>（每日新闻，附转写，A2–B1）'
+  + ' · <a href="https://apprendre.tv5monde.com/fr/exercices" target="_blank" rel="noopener">TV5MONDE · Apprendre le français</a>（分级练习，含 B1）'
+  + '<br>本页音频由浏览器语音合成生成，用于精听训练；每天再听一段真实录音，语音适应会明显更快。</div></div>';
+
+if (typeof globalThis.readingView === 'function'){
+  var prevReading200 = globalThis.readingView;
+  globalThis.readingView = function(x){ return clean(prevReading200.apply(this, arguments)) + sourceBlock200(x); };
+}
+if (typeof globalThis.listeningView === 'function'){
+  var prevListening200 = globalThis.listeningView;
+  globalThis.listeningView = function(x){ return clean(prevListening200.apply(this, arguments)) + sourceBlock200(x) + LIVE_AUDIO_200; };
+}
+['writingView','speakingView','applicationView'].forEach(function(n){
+  if (typeof globalThis[n] === 'function'){
+    var prev = globalThis[n];
+    globalThis[n] = function(){ return clean(prev.apply(this, arguments)); };
+  }
+});
+
+/* Un audit qui ne s'affiche nulle part ne sert à rien : il passe sur la page progrès. */
+if (typeof globalThis.progressPage === 'function'){
+  var prevProgress200 = globalThis.progressPage;
+  globalThis.progressPage = function(){
+    var tone = audit.status === 'pass' ? 'good' : 'warn';
+    var lines = [
+      '已装载逐篇撰写材料：<b>' + audit.applied.length + '</b> 篇（阅读 ' + (audit.coverage.reading || 0) + ' · 听力 ' + (audit.coverage.listening || 0) + '）',
+      '因你已作答而冻结、保持原样：<b>' + audit.protectedItems.length + '</b> 篇',
+      '校验未通过而未装载：<b>' + audit.rejected.length + '</b> 篇 · 相似度超阈值：<b>' + audit.similar.length + '</b> 对'
+    ];
+    if (audit.rejected.length){
+      lines.push('未装载明细：' + audit.rejected.slice(0, 5).map(function(r){
+        return 'D' + r.day + ' ' + r.type + ' s' + r.slot + '（' + r.problems.join('、') + '）';
+      }).join('；'));
+    }
+    return prevProgress200.apply(this, arguments)
+      + '<div class="card"><h2>学习材料校验</h2><div class="callout ' + tone + '">'
+      + '<b>' + (audit.status === 'pass' ? '✓ 全部通过' : '⚠ 有条目未装载，详见下方') + '</b><br>' + lines.join('<br>')
+      + '</div><div class="storage">每篇材料在装载前逐条校验：题干与选项完整、答案下标有效、选项互不相同、正文长度达标、同一天阅读与听力主题不重叠、正文不含开发端编号。不合格的条目不会写入题库。</div></div>';
+  };
+}
+
+/* Ne jamais présenter comme « à faire » un document déjà entièrement répondu. */
+if (typeof globalThis.currentReading === 'function' && typeof globalThis.currentListening === 'function'){
+  ['reading','listening'].forEach(function(t){
+    var name = t === 'reading' ? 'currentReading' : 'currentListening';
+    var prev = globalThis[name];
+    var LETTER200 = t === 'reading' ? 'r' : 'l';
+    /* Days 3+ have their own curriculum documents. If the routing ever falls back to
+       the pre-curriculum bank — an assignment map lost or truncated in the browser —
+       the learner would silently be handed day-1 material. Prefer the document that
+       belongs to the day and slot whenever it exists. */
+    function canonical200(day, slot){
+      if (Number(day) < 3) return null;
+      var suffix = '-d' + pad(day) + '-s' + pad(slot + 1);
+      for (var g = 0; g < GENERATIONS.length; g++){
+        var hit = find(t, LETTER200 + GENERATIONS[g] + suffix);
+        if (hit) return hit;
+      }
+      return null;
+    }
+    globalThis[name] = function(){
+      var item = prev.apply(this, arguments);
+      var manual = UI && UI.browse174 && UI.browse174[t] && UI.browse174[t][String(S.selectedDay)];
+      if (item && !/-d\d{2}-s\d{2}$/.test(String(item.id))){
+        var slot = Number.isInteger(manual) ? manual : Number((S.daily && S.daily[String(S.selectedDay)] && S.daily[String(S.selectedDay)][t]) || 0);
+        var better = canonical200(S.selectedDay, slot);
+        if (better) return better;
+      }
+      if (Number.isInteger(manual)) return item;      /* navigation explicite : on respecte */
+      for (var guard = 0; guard < MAX[t] && item && answerEvidence(t, S.selectedDay, item.id); guard++){
+        UI.browse174 = UI.browse174 || {};
+        UI.browse174[t] = UI.browse174[t] || {};
+        var next = Number(UI.browse174[t][String(S.selectedDay)] || 0) + 1;
+        if (next >= MAX[t]) { delete UI.browse174[t][String(S.selectedDay)]; return item; }
+        UI.browse174[t][String(S.selectedDay)] = next;
+        item = prev.apply(this, arguments);
+      }
+      return item;
+    };
+  });
+}
+
+globalThis.__DELF50_CORPUS_AUDIT = audit;
+if (typeof render === 'function') render();
+})();

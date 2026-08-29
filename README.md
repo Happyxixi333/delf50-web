@@ -4,33 +4,66 @@ A1+ → DELF B1 的 50 天网页备考训练系统。
 
 ## 当前生产版本
 
-- App：`1.8.19`
+- App：`1.9.0`
 - State Schema：`2`
-- Teaching Content：`1.8.9`
+- Teaching Content：`1.9.0`
 - 生产地址：`https://delf50-mvp.vercel.app`
 - 路由：`source-driven-v1`
 - 版本单一来源：`release-meta.js`
-- 题库质量：`authentic-diversity-v3`
-- 兼容保护 UI：`compat-ui-unified-v1`
-- 全题干审计：`full-question-audit-v1`
-- 高强度容量档：`8h-50d-core-v1`
-- 权威来源族：`18`
-- Source seeds：`180`
+- 题库质量：`corpus-authored-v1`
+- Bundle 来源：`deployment-local-v1`（不再运行时抓取 GitHub）
+- 逐篇撰写材料：Day 4–20，共 136 篇（阅读 68 / 听力 68）
+- 权威来源族：`18` · Source seeds：`180`
 
-当前生产壳版本为 V1.8.19，教学内容版本为 1.8.9。版本号、Schema、路由与题库质量标识由 `release-meta.js` 统一维护，并供启动页、运行时 UI 与 API Header 使用。
+## V1.9.0 · 两处根本性修改
 
-V1.8.1 沿用 V1.8.0 的 Schema 2、完成锁定、全程唯一分配和 8 小时 × 50 天容量机制，并为 Day 3–50 接入 source-driven 题库层。18 个权威来源族共 180 个 source seeds 通过服务端固定 commit SHA 注入运行 bundle，再由 `v181-source-driven-content.js` 生成 reading / listening / writing / speaking / application 的新训练材料。
+### 1. Bundle 不再依赖 GitHub
 
-本轮是 additive update，不重置、不重算已有学习记录。已经完成、已作答、已有草稿/正文或口语记录的历史槽位继续使用既有 Content ID 和历史证据；只有尚未开始的槽位允许接入 V1.8.1 新题库。
+此前 `api/source.js` 每次冷启动都要向 `raw.githubusercontent.com` 取 26 个文件，并向 `api.github.com` 请求一次目录列表来装配 seeds。这意味着每一次页面加载都取决于 GitHub 可用性、取决于未认证 GitHub API 每小时 60 次的额度（Vercel 出口 IP 共享该额度），也取决于手工维护的一串 commit SHA——其中至少有一个 SHA 已不在任何分支上。任何一环失败，整个交互层不启动，用户只看到静态兜底页。
 
+现在 `scripts/build-bundle.js` 从仓库文件生成 `build/bundle-parts.js`，随部署一起发布，`api/source.js` 直接从本地读取。对浏览器的接口契约完全不变（仍是 `/api/source?i=0..12`，同样的执行顺序），因此已缓存旧 `index.html` 的浏览器不受影响。页面加载不再触达任何第三方主机。
 
-## V1.8.19 authentic-diversity-v3
+**改动内容后必须重新构建**：`node scripts/build-bundle.js`。`scripts/verify.js` 会先检查 `build/bundle-parts.js` 是否与源文件一致，不一致直接失败。
 
-本轮新增 `v199-authentic-materials.js` 作为最终学习材料质量层，仅重写 Day 5–50 中尚未开始的 reading / listening / writing / speaking / application 槽位。Day 1–4 以及任何已经作答、提交、录音、完成或存在草稿证据的 Content ID 均保持锁定，不重置历史学习记录。
+### 2. 学习材料改为逐篇撰写（Day 4–20）
 
-材料设计以 France Éducation international 的 DELF B1 官方样题与备考说明校准题型、篇幅、交际任务与 B1 难度，并使用公开新闻/公共议题作为事实与语境种子，再进行原创教学改写。当前语境覆盖学校数字化、手机规则、强热天气与出行、气候与城市适应、工作、住房、文化、健康与学习等主题；不复制新闻原文，也不把官方样题正文批量写入题库。
+`v199-authentic-materials.js` 已移出加载链（文件保留在仓库中供参考）。它用 26 条共享的四段骨架（情况 → 变化 → 细节 → 决定）改写了 Day 5–50 的全部 368 篇材料，后果是：所有材料共用同一修辞结构；每天的第 4 篇阅读与第 1 篇听力必然使用同一素材（46/46 天）；每题正确项都是正文对应位置那句话的逐字复制，干扰项来自全库共用的 6 条固定错误项——学习者不理解法语也能按位置答对全部题目。
 
-多样性从输入和产出两端同时控制：阅读与听力分别覆盖 12 种文体/音频形态，写作和口语各覆盖 8 种任务形态；材料不再由单一固定模板只替换主题词。运行时还会对学生可见文本执行开发标记泄漏检查、全文重复检查和 3-gram 高相似度检查；学生界面统一移除 `traceId`、`sourceSeedId`、`Content ID`、slot、旧 Dossier/Audio 内部编号和 provenance 调试卡片。
+取而代之的是 `content/corpus-v200*.js` + `v200-corpus-materials.js`：
+
+- Day 4–20 的阅读与听力共 136 篇，逐篇独立撰写，无共享骨架。
+- 干扰项逐题从本篇正文提取，改动条件、主体或时间；不存在跨篇共用的干扰项。
+- 正确项不是正文语句的逐字复制；题型按篇轮换（主旨、细节、因果、数值推算、态度、前后对比）。
+- 同一天的阅读与听力主题域强制互斥，装载前校验，不合格条目不写入题库。
+- 篇幅随课程递增：Day 4–8 约 90–120 词，Day 15–20 约 150–175 词。
+- 语法负载对齐 `content/curriculum-v17.json`：Day 4 介词与 depuis/pendant，Day 5 PC avec avoir，Day 6 PC avec être + accord，Day 7 imparfait，Day 9 futur，Day 11 COD/COI，Day 12 y/en，Day 13 qui/que/où，Day 14 comparatif，Day 15 conditionnel，Day 16 cause/conséquence，Day 17 opposition，Day 19 récit，Day 20 négociation。
+- Day 21–50 仍由 `v189-input-quality.js`（180 条 source seed、逐日白名单、按体裁分化题干）产出，质量优于被下线的 v199。这一段尚未逐篇撰写，`scripts/verify.js` 的覆盖行会明确报出还有多少槽位属于生成式产出。
+
+### 关于「使用公开专业材料」
+
+DELF 历年真题正文与新闻正文受版权保护，不能逐字收录；把自编情境挂在具体新闻 URL 下冒充来源，比不标来源更糟。本轮的做法是：每篇材料标注一个真实、可点击的公开来源（`service-public.fr`、`ameli.fr`、ADEME、INSEE、CNIL、ANSES、Météo-France、France Travail 等，多数为 Licence Ouverte / Etalab 2.0），课文按该来源的体裁、语域与事实撰写，并在学生界面直接显示来源链接——此前来源只存在于后台 provenance，学习者根本看不到。听力页另附 RFI *Journal en français facile* 与 TV5MONDE 的真实音频入口，因为应用内音频是浏览器语音合成，不等同于真实录音。
+
+## 学习记录保护
+
+这是本项目的硬约束：部署到同一地址后，任何浏览器中已完成的学习内容必须原样保留。
+
+- 状态键 `delf50_v12_state` 与 Schema 2 未变，迁移仍然只增不减。
+- `v200-corpus-materials.js` 的锁定判据**只看身份**：该 Content ID 下的答题记录、`contentProgress172` 完成标记、带 contentId 或同标题的写作/口语/应用记录、含该 ID 的草稿键、`replacements177` 替换记录——任一存在即永久冻结，不改写。装载层不写入 `S` 的任何字段，装载前后对全部学习证据做快照比对，不一致则回滚并放弃更新，宁可当天内容不刷新。
+- `v176-day2-reading-repair.js` 原本会删除 Day 2 的重复答题记录并回退 `daily.reading`、`reading.attempts`、`reading.correct`。这属于销毁学习者真实产出，现已改为只记录、不修改（`evidence-preserved-v2`）。已经跑过旧版修复的浏览器守卫键不变，不会二次执行。
+- 一个已被作答的文档在改版后停留在学习者当时看到的文本上，因此它不参与新的质量门槛；`scripts/verify.js` 会把这些冻结条目单列报出，而不是混进统计里掩盖过去。
+
+## 验证
+
+```bash
+node scripts/build-bundle.js          # 生成 build/bundle-parts.js
+NODE_PATH=<jsdom 所在目录> node scripts/verify.js
+```
+
+`scripts/verify.js` 在 jsdom 中真实启动整个 bundle，并覆盖两类断言：
+
+**学习记录**——以「Day 1–3 全部完成、Day 4–8 语法完成、Day 4 阅读 3 篇 + 听力 1 篇完成」的状态启动，逐项断言每日完成计数、每条答题记录、累计计数器、`startedAt`、语法产出记录与草稿全部未减少；断言已作答文档被冻结而非改写；并额外验证缺失 `assignments172` 的浏览器不会被派发到 Day 1 的旧材料。
+
+**内容质量**——直接向应用索取 `currentReading()` / `currentListening()` 实际返回的文档（而不是假定某个 ID 世代），据此断言：任意两篇 3-gram Jaccard 相似度低于 0.35、标题互不相同、题干不重复、同一天阅读与听力相似度低于 0.30、正确项不是正文语句的逐字复制、干扰项不跨篇共用、正文不含开发端编号、篇幅随课程递增、每题答案下标有效且有解析。当前 Day 4–20 全部通过，阅读峰值相似度 3%，听力 2%，跨模态 2%。
 
 ## V1.8.1 source-driven 题库
 
