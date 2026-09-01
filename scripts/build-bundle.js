@@ -64,6 +64,7 @@ const LAYERS = [
   // text. The file stays in the repository for reference. v189 (180 sourced seeds,
   // per-day whitelists, genre-specific stems) is the better generator underneath.
   'content/corpus-v200.js',
+  'content/corpus-v200-d03.js',
   'content/corpus-v200-d04-d09.js',
   'content/corpus-v200-d10-d14.js',
   'content/corpus-v200-d15-d20.js',
@@ -74,6 +75,7 @@ const LAYERS = [
   'content/corpus-v200-d41-d45.js',
   'content/corpus-v200-d46-d50.js',
   'v200-corpus-materials.js',
+  'v201-day-navigation-and-legacy-text.js',
   'v198-release-ui.js'
 ];
 const SEED_SPLICE_INDEX = 14;
