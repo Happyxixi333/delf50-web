@@ -9,9 +9,14 @@
  * deployment. Nothing here touches the network, so a page load no longer depends on
  * GitHub availability, on the unauthenticated GitHub API rate budget, or on
  * hand-maintained commit pins.
+ *
+ * v202 is intentionally appended after the generated bundle as a small independent
+ * integrity layer. This avoids rebuilding or re-identifying any historical corpus
+ * item while allowing completed grammar evidence to remain immutable.
  */
 const RELEASE = require('../release-meta.js');
 const BUNDLE = require('../build/bundle-parts.js');
+const GRAMMAR_INTEGRITY = require('../v202-grammar-integrity.js');
 
 const CACHE_CONTROL = 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400';
 
@@ -23,13 +28,15 @@ const HEADERS = {
   'X-DELF50-Bundle-Origin': 'deployment-local-v1',
   'X-DELF50-Archive': 'history-evidence-v2',
   'X-DELF50-Navigation': 'demand-aware',
-  'X-DELF50-Grammar-Guides': '18',
+  'X-DELF50-Grammar-Guides': '36',
   'X-DELF50-Day-Routing': RELEASE.route,
   'X-DELF50-Reading-Alignment': 'curriculum-day-aware-v2',
   'X-DELF50-Listening-Alignment': 'curriculum-day-aware-v1',
   'X-DELF50-Output-Alignment': 'curriculum-day-aware-v1',
   'X-DELF50-Lifecycle': 'completion-lock-v1',
-  'X-DELF50-Grammar-UI': 'demand-allocation-v1',
+  'X-DELF50-Grammar-UI': 'demand-allocation-history-v2',
+  'X-DELF50-Grammar-History': 'exact-answer-additive-v1',
+  'X-DELF50-Grammar-Integrity': 'grammar-integrity-history-v1',
   'X-DELF50-Student-UI': 'student-question-clean-v5',
   'X-DELF50-Replacement-Routing': 'replacement-completion-lock-v1',
   'X-DELF50-Student-Content': RELEASE.inputQuality,
@@ -62,11 +69,12 @@ function buildSources() {
   const ordered = [releaseBootstrap]
     .concat(BUNDLE.layers.slice(0, splice))
     .concat([seedBootstrap])
-    .concat(BUNDLE.layers.slice(splice));
+    .concat(BUNDLE.layers.slice(splice))
+    .concat([GRAMMAR_INTEGRITY]);
 
-  const boot = `if(typeof S!=='undefined'){S.version='${RELEASE.app}';if(S.meta172){S.meta172.appVersion='${RELEASE.app}';S.meta172.contentVersion='${RELEASE.content}';S.meta172.studentUi='student-question-clean-v5';S.meta172.replacementRouting='replacement-completion-lock-v1';S.meta172.studentContent='${RELEASE.inputQuality}';S.meta172.historyPolicy='started-completed-content-immutable';}}if(typeof render==='function')render();`;
+  const boot = `if(typeof S!=='undefined'){S.version='${RELEASE.app}';if(S.meta172){S.meta172.appVersion='${RELEASE.app}';S.meta172.contentVersion='${RELEASE.content}';S.meta172.studentUi='student-question-clean-v5';S.meta172.replacementRouting='replacement-completion-lock-v1';S.meta172.studentContent='${RELEASE.inputQuality}';S.meta172.historyPolicy='started-completed-content-immutable';S.meta172.grammarIntegrity='grammar-integrity-history-v1';S.meta172.grammarHistory='exact-answer-additive-v1';}}if(typeof render==='function')render();`;
 
-  sources[last] = `/* DELF50_BUNDLE App=${RELEASE.app} Schema=${RELEASE.schema} Content=${RELEASE.content} Build=${BUNDLE.buildId} | deployment-local bundle */\n`
+  sources[last] = `/* DELF50_BUNDLE App=${RELEASE.app} Schema=${RELEASE.schema} Content=${RELEASE.content} Build=${BUNDLE.buildId} | deployment-local bundle + v202 grammar integrity */\n`
     + sources[last] + '\n;\n' + ordered.join('\n;\n') + '\n;\n' + boot;
 
   return sources;
@@ -83,7 +91,7 @@ module.exports = function handler(req, res) {
     if (!cachedSources) cachedSources = buildSources();
     const text = cachedSources[i];
     res.setHeader('Cache-Control', CACHE_CONTROL);
-    res.setHeader('ETag', `"${BUNDLE.buildId}-${i}"`);
+    res.setHeader('ETag', `"${BUNDLE.buildId}-${RELEASE.app}-${i}"`);
     for (const [k, v] of Object.entries(HEADERS)) res.setHeader(k, v);
     res.setHeader('X-DELF50-Source-File', BUNDLE.baseFiles[i]);
     res.status(200).send(text);
